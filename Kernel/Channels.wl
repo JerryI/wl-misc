@@ -36,6 +36,10 @@ WebSocketChannel[name_String]["Publish", expr_] := With[{data = expr // (WebSock
     If[FailureQ[WebSocketSend[SocketObject[#], data]], Channels[name][#] = .] &/@ Keys[Channels[name]]
 ]
 
+WebSocketChannel[name_String]["Push", expr_] := With[{data = expr // (WebSocketChannel[name]["Serializer"])},
+    If[FailureQ[WebSocketSend[SocketObject[#], data]], Channels[name][#] = .] &/@ Keys[Channels[name]]
+]
+
 WebSocketChannel[Automatic]["Push", expr_] := WebSocketSend[Global`client, expr // (WebSocketChannel[Automatic]["Serializer"])]
 WebSocketChannel[Automatic]["Push", client_SocketObject, expr_] := WebSocketSend[client, expr // (WebSocketChannel[Automatic]["Serializer"])]
 WebSocketChannel[Automatic]["Serializer"] = $DefaultSerializer
