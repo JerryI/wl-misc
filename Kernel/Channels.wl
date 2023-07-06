@@ -33,11 +33,11 @@ WebSocketChannel[name_String]["Subscribe"] := (
 )
 
 WebSocketChannel[name_String]["Publish", expr_] := With[{data = expr // (WebSocketChannel[name]["Serializer"])},
-    If[FailureQ[WebSocketSend[SocketObject[#], data]], Channels[name][#] = .] &/@ Keys[Channels[name]]
+    If[FailureQ[WebSocketSend[SocketObject[#], data]], Channels[name][#] = .; Print["Channel failed. "<>#<>" was removed from "<>name];] &/@ Keys[Channels[name]]
 ]
 
 WebSocketChannel[name_String]["Push", expr_] := With[{data = expr // (WebSocketChannel[name]["Serializer"])},
-    If[FailureQ[WebSocketSend[SocketObject[#], data]], Channels[name][#] = .] &/@ Keys[Channels[name]]
+    If[FailureQ[WebSocketSend[SocketObject[#], data]], Channels[name][#] = .; Print["Channel failed. "<>#<>" was removed from "<>name];] &/@ Keys[Channels[name]]
 ]
 
 WebSocketChannel[Automatic]["Push", expr_] := WebSocketSend[Global`client, expr // (WebSocketChannel[Automatic]["Serializer"])]
