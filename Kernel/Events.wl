@@ -38,7 +38,7 @@ Autobind[EventObject[assoc_][symbol_]] ^:= (
         Function[data, s = data]
     ];
     
-    EventObject[assoc]
+    EventObject[assoc] // ReleaseHold
 );
 
 SetAttributes[Autobind, HoldFirst]
