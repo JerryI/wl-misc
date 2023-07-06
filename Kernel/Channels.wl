@@ -20,26 +20,24 @@ Begin["`Private`"];
 
 Channels = <||>
 
-WebSocketChannel[name_String]["Subscribe", client_SocketObject] := (
+WebSocketChannel[name_]["Subscribe", client_SocketObject] := (
     If[!KeyExistsQ[Channels, name], Channels[name] = <||>];
     Channels[name][client // First] = True;
     Print["Client "<>client[[1]]<>" subscribed to a channel "<>name];
 )
 
-WebSocketChannel[name_String]["Subscribe"] := (
+WebSocketChannel[name_]["Subscribe"] := (
     If[!KeyExistsQ[Channels, name], Channels[name] = <||>];
     Channels[name][Global`client // First] = True;
     Print["Client "<>Global`client[[1]]<>" subscribed to a channel "<>name];
 )
 
-WebSocketChannel[name_String]["Publish", expr_] := With[{data = expr // (WebSocketChannel[name]["Serializer"])},
-    Print["Serialised: "<>data];
-    If[Print["Publishing "<>#<>" for "<>name]; WebSocketSend[SocketObject[#], data]; FailureQ[WebSocketSend[SocketObject[#], data]], Channels[name][#] = .; Print["Channel failed. "<>#<>" was removed from "<>name];] &/@ Keys[Channels[name]]
+WebSocketChannel[name_]["Publish", expr_] := With[{data = expr // (WebSocketChannel[name]["Serializer"])},
+    If[WebSocketSend[SocketObject[#], data]; FailureQ[WebSocketSend[SocketObject[#], data]], Channels[name][#] = .; Print["Channel failed. "<>#<>" was removed from "<>name];] &/@ Keys[Channels[name]]
 ]
 
-WebSocketChannel[name_String]["Push", expr_] := With[{data = expr // (WebSocketChannel[name]["Serializer"])},
-    Print["Serialised: "<>data];
-    If[Print["Publishing "<>#<>" for "<>name]; WebSocketSend[SocketObject[#], data]; FailureQ[WebSocketSend[SocketObject[#], data]], Channels[name][#] = .; Print["Channel failed. "<>#<>" was removed from "<>name];] &/@ Keys[Channels[name]]
+WebSocketChannel[name_]["Push", expr_] := With[{data = expr // (WebSocketChannel[name]["Serializer"])},
+    If[WebSocketSend[SocketObject[#], data]; FailureQ[WebSocketSend[SocketObject[#], data]], Channels[name][#] = .; Print["Channel failed. "<>#<>" was removed from "<>name];] &/@ Keys[Channels[name]]
 ]
 
 WebSocketChannel[Automatic]["Push", expr_] := WebSocketSend[Global`client, expr // (WebSocketChannel[Automatic]["Serializer"])]
