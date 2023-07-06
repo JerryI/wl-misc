@@ -37,9 +37,7 @@ WebSocketChannel[name_]["Publish", expr_] := With[{data = expr // (WebSocketChan
 ]
 
 WebSocketChannel[name_]["Push", expr_] := With[{data = expr // (WebSocketChannel[name]["Serializer"])},
-    Print["Publishing... for"];
-    Print[ Channels[name]];
-    If[FailureQ[Print[#]; Print[data]; Print[WebSocketSend[SocketObject[#], data]]], Channels[name, #] = .; Print["Channel failed. "<>#<>" was removed from "<>name];] &/@ Keys[Channels[name]]
+    If[FailureQ[WebSocketSend[SocketObject[#], data]], Channels[name, #] = .; Print["Channel failed. "<>#<>" was removed from "<>name];] &/@ Keys[Channels[name]]
 ]
 
 WebSocketChannel[Automatic]["Push", expr_] := WebSocketSend[Global`client, expr // (WebSocketChannel[Automatic]["Serializer"])]
