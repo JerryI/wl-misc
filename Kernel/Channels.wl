@@ -4,7 +4,7 @@
 (*Extensions*)
 
 
-BeginPackage["Jerry`Misc`Channels`", {"KirillBelov`WebSocketHandler`"}]; 
+BeginPackage["JerryI`Misc`Channels`", {"KirillBelov`WebSocketHandler`"}]; 
 
 
 WebSocketChannel::usage = 
@@ -33,11 +33,13 @@ WebSocketChannel[name_]["Subscribe"] := (
 )
 
 WebSocketChannel[name_]["Publish", expr_] := With[{data = expr // (WebSocketChannel[name]["Serializer"])},
-    If[FailureQ[WebSocketSend[SocketObject[#], data]], Channels[name][#] = .; Print["Channel failed. "<>#<>" was removed from "<>name];] &/@ Keys[Channels[name]]
+    If[FailureQ[WebSocketSend[SocketObject[#], data]], Channels[name, #] = .; Print["Channel failed. "<>#<>" was removed from "<>name];] &/@ Keys[Channels[name]]
 ]
 
 WebSocketChannel[name_]["Push", expr_] := With[{data = expr // (WebSocketChannel[name]["Serializer"])},
-    If[FailureQ[WebSocketSend[SocketObject[#], data]], Channels[name][#] = .; Print["Channel failed. "<>#<>" was removed from "<>name];] &/@ Keys[Channels[name]]
+    Print["Publishing... for"];
+    Print[ Channels[name]];
+    If[FailureQ[Print[#]; Print[data]; Print[WebSocketSend[SocketObject[#], data]]], Channels[name, #] = .; Print["Channel failed. "<>#<>" was removed from "<>name];] &/@ Keys[Channels[name]]
 ]
 
 WebSocketChannel[Automatic]["Push", expr_] := WebSocketSend[Global`client, expr // (WebSocketChannel[Automatic]["Serializer"])]
