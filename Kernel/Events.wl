@@ -33,12 +33,12 @@ EventBind[id_String, handler_] := (EventHandlers[id] = handler;);
 (* shotcut *)
 EventObject[assoc_][handler_] := (EventHandlers[assoc["id"] ] = handler; EventObject[assoc]);
 
-Autobind[EventObject[assoc_][symbol_]] ^:= (
+Autobind[symbol_][EventObject[assoc_]] ^:= (
     EventHandlers[assoc["id"] ] = With[{s = Unevaluated[symbol]}, 
         Function[data, s = data]
     ];
     
-    EventObject[assoc] // ReleaseHold
+    EventObject[assoc]
 );
 
 SetAttributes[Autobind, HoldFirst]
