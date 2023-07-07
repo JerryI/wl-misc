@@ -23,7 +23,7 @@ EventListener::usage = "internal commnd for frontend"
 MiddlewareHandler::usage = "internal command"
 MiddlewareListener::usage = "internals"
 
-Autobind::usage = "internal autobinding"
+Assign::usage = "internal autobinding"
 
 Begin["`Private`"]; 
 
@@ -33,7 +33,7 @@ EventBind[id_String, handler_] := (EventHandlers[id] = handler;);
 (* shotcut *)
 EventObject[assoc_][handler_] := (EventHandlers[assoc["id"] ] = handler; EventObject[assoc]);
 
-Autobind[symbol_][EventObject[assoc_]] ^:= (
+Assign[symbol_][EventObject[assoc_]] ^:= (
     EventHandlers[assoc["id"] ] = With[{s = Unevaluated[symbol]}, 
         Function[data, s = data]
     ];
@@ -41,7 +41,7 @@ Autobind[symbol_][EventObject[assoc_]] ^:= (
     EventObject[assoc]
 );
 
-SetAttributes[Autobind, HoldFirst]
+SetAttributes[Assign, HoldFirst]
 
 EmittedEvent[EventObject[assoc_], data_] := EventHandlers[assoc["id"]][data];
 
