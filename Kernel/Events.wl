@@ -73,9 +73,9 @@ EventHandler[expr_, ev_List] := Module[{eventsList = {}},
 ]
 
 (* better to use this instead of EventBind *)
-EventHandler[EventObject[assoc_Association], handler_] := (
+EventHandler[EventObject[assoc_Association], handler_] ^:= (
     EventHandlers[assoc["id"]] = handler;
-    If[KeyExistsQ[assoc, "view"], assoc["view"] // Global`CreateFrontEndObject]
+    If[KeyExistsQ[assoc, "view"], Print["creating view..."]; assoc["view"] // Global`CreateFrontEndObject]
 )
 
 MiddlewareHandler[expr_, ev_Rule, opts___] := With[{id = CreateUUID[], type = ev[[1]], func = ev[[2]]},
