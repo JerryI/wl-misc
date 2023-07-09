@@ -28,7 +28,7 @@ Assign::usage = "internal autobinding"
 Begin["`Private`"]; 
 
 
-EventBind[EventObject[assoc_], handler_] ^:= (EventHandlers[assoc["id"] ] = handler;);
+EventBind[EventObject[assoc_], handler_] ^:= (EventHandlers[assoc["id"] ] = handler; EventObject[assoc]);
 EventBind[id_String, handler_] := (EventHandlers[id] = handler;);
 (* shotcut *)
 EventObject[assoc_][handler_] := (EventHandlers[assoc["id"] ] = handler; EventObject[assoc]);
@@ -73,7 +73,7 @@ EventHandler[expr_, ev_List] := Module[{eventsList = {}},
 ]
 
 (* better to use this instead of EventBind *)
-EventHandler[EventObject[assoc_Association], handler_] ^:= (
+EventHandler[EventObject[assoc_Association], handler_] := (
     EventHandlers[assoc["id"]] = handler;
     EventObject[assoc]
 )
