@@ -78,6 +78,10 @@ EventHandler[EventObject[assoc_Association], handler_] ^:= (
     EventObject[assoc]
 )
 
+EventHandler[id_String, handler_] := (
+    EventHandlers[id] = handler;
+)
+
 MiddlewareHandler[expr_, ev_Rule, opts___] := With[{id = CreateUUID[], type = ev[[1]], func = ev[[2]]},
     EventBind[EventObject[<|"id"->id|>], func];
 
