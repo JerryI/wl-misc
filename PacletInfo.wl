@@ -7,14 +7,14 @@ PacletObject[
     "Creator" -> "Kirill Vasin",
     "License" -> "MIT",
     "PublisherID" -> "JerryI",
-    "Version" -> "0.0.5",
+    "Version" -> "0.0.6",
     "WolframVersion" -> "5+",
     "PrimaryContext" -> "JerryI`Misc`",
     "Extensions" -> {
       {
         "Kernel",
         "Root" -> "Kernel",
-        "Context" -> {{"JerryI`Misc`Events`", "Events.wl"}},
+        "Context" -> {{"JerryI`Misc`Events`", "Events.wl"}, {"JerryI`Misc`WLJS`Transport`", "WLJSIO.wl"}},
         "Symbols" -> {}
       },
  
