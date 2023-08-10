@@ -1,18 +1,18 @@
 BeginPackage["JerryI`Misc`WLJS`Transport`", {"KirillBelov`WebSocketHandler`"}]; 
 
-WLJSIOHandler::usage = ""
-WLJSIOConnect::usage = ""
+WLJSTransportHandler::usage = ""
+WLJSTransportScript::usage = ""
 
 Begin["`Private`"]
 
-WLJSIOHandler[client_, data_ByteArray] := Block[{Global`client = cl},
+WLJSTransportHandler[client_, data_ByteArray] := Block[{Global`client = cl},
     ToExpression[data//ByteArrayToString];
 ]
 
 $DefaultSerializer = ExportByteArray[#, "ExpressionJSON"]&
 
 NotebookAddTracking[symbol_] := With[{cli = Global`client, name = SymbolName[Unevaluated[symbol]]},
-    WLJSIOHandler["AddTracking"][symbol, name, cli, Function[{client, value},
+    WLJSTransportHandler["AddTracking"][symbol, name, cli, Function[{client, value},
         WebSocketSend[client, Global`FrontUpdateSymbol[name, value] // $DefaultSerializer]
     ]]
 ]
@@ -20,12 +20,12 @@ NotebookAddTracking[symbol_] := With[{cli = Global`client, name = SymbolName[Une
 SetAttributes[NotebookAddTracking, HoldFirst]
 
 NotebookGetSymbol[uid_, params_][expr_] := With[{client = Global`client},
-    WLJSIOHandler["GetSymbol"][expr, client, Function[result,
+    WLJSTransportHandler["GetSymbol"][expr, client, Function[result,
         WebSocketSend[client, Global`PromiseResolve[uid, result] // $DefaultSerializer] 
     ]]
 ];
 
-WLJSIOConnect[port_, template_] := If[
+WLJSTransportScript[port_, template_] := If[
     StringQ[Global`Mode],
     ScriptTemplate[Global`Port, Global`Mode],
     ScriptTemplate[port, template]
