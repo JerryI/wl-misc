@@ -2,6 +2,7 @@ BeginPackage["JerryI`Misc`WLJS`Transport`", {"KirillBelov`WebSocketHandler`"}];
 
 WLJSTransportHandler::usage = ""
 WLJSTransportScript::usage = ""
+WLJSAliveQ::usage = ""
 
 Begin["`Private`"]
 
@@ -25,41 +26,84 @@ Global`NotebookGetSymbol[uid_, params_][expr_] := With[{client = Global`client},
     ]]
 ];
 
-WLJSTransportScript[port_, template_] := If[
+IDCards = <||>;
+Global`WLJSIDCardRegister[uid_String] := IDCards[uid] = Global`client
+
+WLJSAliveQ[uid_String] = (
+    With[{res = !FailureQ[WebSocketSend[IDCards[uid], Global`SlientPing // $DefaultSerializer]]},
+        If[!res, IDCards[uid] = .];
+        res
+    ]
+)
+
+WLJSTransportScript[port_, template_, secret_:Null] := If[
     NumberQ[Global`Port],
-    ScriptTemplate[Global`Port, Global`Regime],
-    ScriptTemplate[port, template]
+    ScriptTemplate[Global`Port, Global`Regime, If[StringQ[Global`Secret], Global`Secret, Null]],
+    ScriptTemplate[port, template, secret]
 ]
 
 WLJSTransportScript[] := If[
     NumberQ[Global`Port],
-    ScriptTemplate[Global`Port, Global`Regime],
+    ScriptTemplate[Global`Port, Global`Regime, If[StringQ[Global`Secret], Global`Secret, Null]],
     "Specify a mode and a port!"
 ]
 
-ScriptTemplate[port_, "Standalone"] := StringTemplate["
-    <script type=\"module\">
-        var socket = new WebSocket(\"ws://\"+window.location.hostname+':'+``);
-        socket.onopen = function(e) {
-          console.log(\"[open]\");
-          server.kernel.socket = socket;
-          server.init(socket);
-        }; 
+ScriptTemplate[port_, "Standalone", secret_] := 
+If[secret === Null,
+    StringTemplate["
+        <script type=\"module\">
+            var socket = new WebSocket(\"ws://\"+window.location.hostname+':'+``);
+            socket.onopen = function(e) {
+              console.log(\"[open]\");
+              server.kernel.socket = socket;
+              server.init(socket);
+            }; 
 
-        socket.onmessage = function(event) {
-          //create global context
-          //callid
-          const uid = Date.now() + Math.floor(Math.random() * 100);
-          var global = {call: uid};
-          interpretate(JSON.parse(event.data), {global: global});
-        };
+            socket.onmessage = function(event) {
+              //create global context
+              //callid
+              const uid = Date.now() + Math.floor(Math.random() * 100);
+              var global = {call: uid};
+              interpretate(JSON.parse(event.data), {global: global});
+            };
 
-        socket.onclose = function(event) {
-          console.log(event);
-          alert('Connection lost. Please, update the page to see new changes.');
-        }; 
-    </script>
-"][port]
+            socket.onclose = function(event) {
+              console.log(event);
+              alert('Connection lost. Please, update the page to see new changes.');
+            }; 
+
+            core.SlientPing = () => {
+                console.log('Ppspsp... server is there');
+            }
+        </script>
+    "][port]
+,
+
+    StringTemplate["
+        <script type=\"module\">
+            var socket = new WebSocket(\"ws://\"+window.location.hostname+':'+``);
+            socket.onopen = function(e) {
+              console.log(\"[open]\");
+              server.kernel.socket = socket;
+              server.init(socket);
+              socket.send(`WLJSIDCardRegister[\"``\"]`);
+            }; 
+
+            socket.onmessage = function(event) {
+              //create global context
+              //callid
+              const uid = Date.now() + Math.floor(Math.random() * 100);
+              var global = {call: uid};
+              interpretate(JSON.parse(event.data), {global: global});
+            };
+
+            socket.onclose = function(event) {
+              console.log(event);
+              alert('Connection lost. Please, update the page to see new changes.');
+            }; 
+        </script>
+    "][port, secret]
+]
 
 End[];
 
