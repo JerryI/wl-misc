@@ -31,6 +31,12 @@ WLJSTransportScript[port_, template_] := If[
     ScriptTemplate[port, template]
 ]
 
+WLJSTransportScript[] := If[
+    StringQ[Global`Mode],
+    ScriptTemplate[Global`Port, Global`Mode],
+    "Specify a mode and a port!"
+]
+
 ScriptTemplate[port_, "Standalone"] = StringTemplate["
     <script type=\"module\">
         var socket = new WebSocket(\"ws://\"+window.location.hostname+':'+``);
