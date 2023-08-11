@@ -5,7 +5,7 @@ WLJSTransportScript::usage = ""
 
 Begin["`Private`"]
 
-WLJSTransportHandler[client_, data_ByteArray] := Block[{Global`client = cl},
+WLJSTransportHandler[cl_, data_ByteArray] := Block[{Global`client = cl},
     ToExpression[data//ByteArrayToString];
 ]
 
