@@ -27,12 +27,16 @@ Global`NotebookGetSymbol[uid_, params_][expr_] := With[{client = Global`client},
 ];
 
 IDCards = <||>;
-Global`WLJSIDCardRegister[uid_String] := IDCards[uid] = Global`client
+Global`WLJSIDCardRegister[uid_String] := (Print["Transport registered as "<>uid]; IDCards[uid] = Global`client)
 
-WLJSAliveQ[uid_String] = (
-    With[{res = !FailureQ[WebSocketSend[IDCards[uid], Global`SlientPing // $DefaultSerializer]]},
-        If[!res, IDCards[uid] = .];
-        res
+WLJSAliveQ[uid_String] := (
+    If[KeyExistsQ[IDCards, uid],
+        With[{res = !FailureQ[WebSocketSend[IDCards[uid], Global`SlientPing // $DefaultSerializer]]},
+            If[!res, IDCards[uid] = .];
+            res
+        ]
+    ,
+        Missing[]
     ]
 )
 
@@ -49,7 +53,8 @@ WLJSTransportScript[] := If[
 ]
 
 ScriptTemplate[port_, "Standalone", secret_] := 
-If[secret === Null,
+If[secret =!= Null,
+    Print["Secret script: "<>secret];
     StringTemplate["
         <script type=\"module\">
             var socket = new WebSocket(\"ws://\"+window.location.hostname+':'+``);
@@ -57,6 +62,7 @@ If[secret === Null,
               console.log(\"[open]\");
               server.kernel.socket = socket;
               server.init(socket);
+              socket.send('WLJSIDCardRegister[\"``\"]');
             }; 
 
             socket.onmessage = function(event) {
@@ -76,7 +82,7 @@ If[secret === Null,
                 console.log('Ppspsp... server is there');
             }
         </script>
-    "][port]
+    "][port, secret]
 ,
 
     StringTemplate["
@@ -86,7 +92,6 @@ If[secret === Null,
               console.log(\"[open]\");
               server.kernel.socket = socket;
               server.init(socket);
-              socket.send(`WLJSIDCardRegister[\"``\"]`);
             }; 
 
             socket.onmessage = function(event) {
@@ -102,7 +107,7 @@ If[secret === Null,
               alert('Connection lost. Please, update the page to see new changes.');
             }; 
         </script>
-    "][port, secret]
+    "][port]
 ]
 
 End[];
