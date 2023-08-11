@@ -11,15 +11,15 @@ WLJSTransportHandler[client_, data_ByteArray] := Block[{Global`client = cl},
 
 $DefaultSerializer = ExportByteArray[#, "ExpressionJSON"]&
 
-NotebookAddTracking[symbol_] := With[{cli = Global`client, name = SymbolName[Unevaluated[symbol]]},
+Global`NotebookAddTracking[symbol_] := With[{cli = Global`client, name = SymbolName[Unevaluated[symbol]]},
     WLJSTransportHandler["AddTracking"][symbol, name, cli, Function[{client, value},
         WebSocketSend[client, Global`FrontUpdateSymbol[name, value] // $DefaultSerializer]
     ]]
 ]
 
-SetAttributes[NotebookAddTracking, HoldFirst]
+SetAttributes[Global`NotebookAddTracking, HoldFirst]
 
-NotebookGetSymbol[uid_, params_][expr_] := With[{client = Global`client},
+Global`NotebookGetSymbol[uid_, params_][expr_] := With[{client = Global`client},
     WLJSTransportHandler["GetSymbol"][expr, client, Function[result,
         WebSocketSend[client, Global`PromiseResolve[uid, result] // $DefaultSerializer] 
     ]]
