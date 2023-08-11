@@ -26,18 +26,18 @@ Global`NotebookGetSymbol[uid_, params_][expr_] := With[{client = Global`client},
 ];
 
 WLJSTransportScript[port_, template_] := If[
-    StringQ[Global`Mode],
-    ScriptTemplate[Global`Port, Global`Mode],
+    NumberQ[Global`Port],
+    ScriptTemplate[Global`Port, Global`Regime],
     ScriptTemplate[port, template]
 ]
 
 WLJSTransportScript[] := If[
-    StringQ[Global`Mode],
-    ScriptTemplate[Global`Port, Global`Mode],
+    NumberQ[Global`Port],
+    ScriptTemplate[Global`Port, Global`Regime],
     "Specify a mode and a port!"
 ]
 
-ScriptTemplate[port_, "Standalone"] = StringTemplate["
+ScriptTemplate[port_, "Standalone"] := StringTemplate["
     <script type=\"module\">
         var socket = new WebSocket(\"ws://\"+window.location.hostname+':'+``);
         socket.onopen = function(e) {
