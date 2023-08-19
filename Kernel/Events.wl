@@ -97,6 +97,15 @@ Module[{handler, data = Empty},
     ]
 ]] 
 
+EventObject /: Join[evs__EventObject] := EventJoin[evs]
+EventObject /: Delete[ev_EventObject] := EventRemove[ev]
+EventObject /: DeleteObject[ev_EventObject] := EventRemove[ev]
+EventObject /: Remove[ev_EventObject] := EventRemove[ev]
+
+EventObject /: Once[EventObject[assoc_]] := (
+    EmittedEvent[EventObject[assoc], If[KeyExistsQ[assoc, "initial"], assoc["initial"], Empty]]
+)
+
 (* an union of many events *)
 EventsRack[list_] := With[{uid = CreateUUID[]},
     With[{central = Function[data, EmittedEvent[uid, data]]},
