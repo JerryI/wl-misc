@@ -10,15 +10,18 @@ BeginPackage["JerryI`Misc`Events`"];
 
 EventObject::usage = "a representation of a simple event. can hold an extra information"
 
-EventBind::usage = "bind a function to an EventObject"
+EventJoin::usage = "join sequence of many EventObjects to a new one"
+EventClone::usage = "dublicate an event object keeping all handlers"
+
+EventHandler::usage = "bind a function to an EventObject"
 EventRemove::usage = "remove the bond from EventObject"
 
-EventsRack::usage = "a union of many events produces a single event object from many"
+EventsRack::usage = "depricated!"
 
 EmittedEvent::usage = "internal function called by the frontend to fire an event on a kernel"
 EventHandlers::usage = "internal function, which hold the binded function"
 
-EventListener::usage = "internal commnd for frontend"
+EventListener::usage = "internal command"
 
 MiddlewareHandler::usage = "internal command"
 MiddlewareListener::usage = "internals"
@@ -47,7 +50,49 @@ EmittedEvent[EventObject[assoc_], data_] := EventHandlers[assoc["id"]][data];
 
 EmittedEvent[id_String, data_] := ( EventHandlers[id][data]);
 
-EventRemove[EventObject[assoc_]] ^:= (With[{id = assoc["id"]}, Unset[ EventHandlers[id] ] ]);
+EventRemove[EventObject[assoc_]] := (With[{id = assoc["id"]}, Unset[ EventHandlers[id] ] ]);
+EventRemove[id_String] := Unset[ EventHandlers[id] ];
+
+EventClone[EventObject[assoc_]] := EventClone[assoc["id"]]
+
+EventClone[assocId_String] := (
+    With[{t = EventHandlers[assocId], id = assocId, cuid = CreateUUID[]}, 
+        If[Head[t] =!= EventRouter,
+            (* reroute *)
+            With[{nuid = CreateUUID[]},
+                EventHandlers[nuid] = EventHandlers[id];
+                EventRouter[id, "list"] = {nuid};
+                EventHandlers[id] = EventRouter[id];
+                EventRouter[id][data_] := EmittedEvent[#, data] &/@ EventRouter[id, "list"];
+            ]
+        ];
+
+        With[{repls = Hold[t] /. EventRouter[x__] -> EventRouter[x, "list"]},
+            With[{m = Extract[repls, 1, Unevaluated]},
+                AppendTo[m, cuid];
+            ];
+        ];
+
+        EventObject[<|"id"->cuid|>]
+    ]
+)
+
+EventJoin[seq__] := With[{list = List[seq], joined = CreateUUID[]},
+Module[{handler, data = Empty},
+    (
+        If[Head[#] === EventObject,
+            If[KeyExistsQ[#[[1]], "initial"],
+                Print["Joining initial parameters..."];
+                If[data === Empty, data = #[[1]]["initial"], data = Join[data, #[[1]]["initial"]]];
+            ];
+        ];
+        EventHandler[EventClone[#], handler];
+    ) &/@ list;
+
+    handler = Function[d, EmittedEvent[joined, If[data === Empty, d, data = Join[data, d]]]];  
+
+    EventObject[<|"id"->joined, "storage"->Hold[data], "handler"->Hold[handler]|>]
+]] 
 
 (* an union of many events *)
 EventsRack[list_] := With[{uid = CreateUUID[]},
