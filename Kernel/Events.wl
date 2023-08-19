@@ -15,6 +15,8 @@ EventClone::usage = "dublicate an event object keeping all handlers"
 
 EventRemove::usage = "remove the bond from EventObject"
 
+EventFire::usage = "manually fire an event object"
+
 EventBind::usage = "legacy method to bind events"
 
 EventsRack::usage = "depricated!"
@@ -102,8 +104,16 @@ EventObject /: Delete[ev_EventObject] := EventRemove[ev]
 EventObject /: DeleteObject[ev_EventObject] := EventRemove[ev]
 EventObject /: Remove[ev_EventObject] := EventRemove[ev]
 
-EventObject /: Once[EventObject[assoc_]] := (
-    EmittedEvent[EventObject[assoc], If[KeyExistsQ[assoc, "initial"], assoc["initial"], Empty]]
+EventFire[EventObject[assoc_]] := (
+    EmittedEvent[assoc["id"], If[KeyExistsQ[assoc, "initial"], assoc["initial"], Empty]]
+)
+
+EventFire[id_String] := (
+    EmittedEvent[id, Empty]
+)
+
+EventFire[id_String, data_] := (
+    EmittedEvent[id, data]
 )
 
 (* an union of many events *)
