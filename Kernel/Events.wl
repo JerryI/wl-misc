@@ -90,7 +90,11 @@ Module[{handler, data = Empty},
         EventHandler[EventClone[#], Function[d, EmittedEvent[joined, If[data === Empty, d, data = Join[data, d]]]]]
     ) &/@ list;
 
-    EventObject[<|"id"->joined, "storage"->Hold[data]|>]
+    If[data =!= Empty,
+        EventObject[<|"id"->joined, "storage"->Hold[data], "initial"->data|>]
+    ,
+        EventObject[<|"id"->joined, "storage"->Hold[data]|>]
+    ]
 ]] 
 
 (* an union of many events *)
