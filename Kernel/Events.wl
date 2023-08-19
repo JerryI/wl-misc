@@ -13,8 +13,9 @@ EventObject::usage = "a representation of a simple event. can hold an extra info
 EventJoin::usage = "join sequence of many EventObjects to a new one"
 EventClone::usage = "dublicate an event object keeping all handlers"
 
-EventHandler::usage = "bind a function to an EventObject"
 EventRemove::usage = "remove the bond from EventObject"
+
+EventBind::usage = "legacy method to bind events"
 
 EventsRack::usage = "depricated!"
 
