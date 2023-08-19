@@ -60,19 +60,20 @@ EventClone[assocId_String] := (
     With[{t = EventHandlers[assocId], id = assocId, cuid = CreateUUID[]}, 
         If[Head[t] =!= EventRouter,
             (* reroute *)
+            Print["reroute existing event"];
             With[{nuid = CreateUUID[]},
-                EventHandlers[nuid] = EventHandlers[id];
-                EventRouter[id, "list"] = {nuid};
+                If[Head[t] =!= EventHandlers,
+                    EventHandlers[nuid] = EventHandlers[id];
+                    EventRouter[id, "list"] = {nuid};
+                ,
+                    EventRouter[id, "list"] = {};
+                ];    
                 EventHandlers[id] = EventRouter[id];
                 EventRouter[id][data_] := EmittedEvent[#, data] &/@ EventRouter[id, "list"];
-            ]
-        ];
-
-        With[{repls = Hold[t] /. EventRouter[x__] -> EventRouter[x, "list"]},
-            With[{m = Extract[repls, 1, Unevaluated]},
-                AppendTo[m, cuid];
             ];
         ];
+
+        EventRouter[id, "list"] = Append[EventRouter[id, "list"], cuid];
 
         EventObject[<|"id"->cuid|>]
     ]
@@ -83,16 +84,13 @@ Module[{handler, data = Empty},
     (
         If[Head[#] === EventObject,
             If[KeyExistsQ[#[[1]], "initial"],
-                Print["Joining initial parameters..."];
                 If[data === Empty, data = #[[1]]["initial"], data = Join[data, #[[1]]["initial"]]];
             ];
         ];
-        EventHandler[EventClone[#], handler];
+        EventHandler[EventClone[#], Function[d, EmittedEvent[joined, If[data === Empty, d, data = Join[data, d]]]]]
     ) &/@ list;
 
-    handler = Function[d, EmittedEvent[joined, If[data === Empty, d, data = Join[data, d]]]];  
-
-    EventObject[<|"id"->joined, "storage"->Hold[data], "handler"->Hold[handler]|>]
+    EventObject[<|"id"->joined, "storage"->Hold[data]|>]
 ]] 
 
 (* an union of many events *)
