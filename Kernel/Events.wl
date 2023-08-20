@@ -139,6 +139,14 @@ EventHandler[expr_, ev_List] := Module[{eventsList = {}},
     EventListener[expr, (Sequence@@eventsList)]
 ]
 
+EventHandler[cid_String, ev_List] := Module[{eventsList = {}},
+    eventsList = With[{func = #[[2]], id = cid<>"-"<>#[[1]]},
+        EventBind[EventObject[<|"id"->id|>], func];
+        EventObject[<|"id"->id|>]
+    ]&/@ ev;
+    eventsList
+]
+
 (* better to use this instead of EventBind *)
 EventHandler[EventObject[assoc_Association], handler_] ^:= (
     EventHandlers[assoc["id"]] = handler;
@@ -148,6 +156,8 @@ EventHandler[EventObject[assoc_Association], handler_] ^:= (
 EventHandler[id_String, handler_] := (
     EventHandlers[id] = handler;
 )
+
+
 
 MiddlewareHandler[expr_, ev_Rule, opts___] := With[{id = CreateUUID[], type = ev[[1]], func = ev[[2]]},
     EventBind[EventObject[<|"id"->id|>], func];
