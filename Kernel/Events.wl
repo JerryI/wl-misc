@@ -141,7 +141,7 @@ EventHandler[expr_, ev_List] := Module[{eventsList = {}},
 
 EventHandler[cid_String, ev_List] := Module[{eventsList = {}},
     eventsList = With[{func = #[[2]], id = cid<>"-"<>#[[1]]},
-        EventBind[EventObject[<|"id"->id|>], func];
+        EventBind[EventObject[<|"id"->id|>] // EventClone, func];
         EventObject[<|"id"->id|>]
     ]&/@ ev;
     eventsList
