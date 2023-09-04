@@ -102,7 +102,6 @@ Module[{handler, data = Empty},
 EventObject /: Join[evs__EventObject] := EventJoin[evs]
 EventObject /: Delete[ev_EventObject] := EventRemove[ev]
 EventObject /: DeleteObject[ev_EventObject] := EventRemove[ev]
-EventObject /: Remove[ev_EventObject] := EventRemove[ev]
 
 EventFire[EventObject[assoc_]] := (
     EmittedEvent[assoc["id"], If[KeyExistsQ[assoc, "initial"], assoc["initial"], Empty]]
