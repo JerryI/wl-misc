@@ -107,6 +107,10 @@ EventFire[EventObject[assoc_]] := (
     EmittedEvent[assoc["id"], If[KeyExistsQ[assoc, "initial"], assoc["initial"], Empty]]
 )
 
+EventFire[EventObject[assoc_], data_] := (
+    EmittedEvent[assoc["id"], data]
+)
+
 EventFire[id_String] := (
     EmittedEvent[id, Empty]
 )
