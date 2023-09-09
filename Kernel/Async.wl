@@ -3,6 +3,8 @@ BeginPackage["JerryI`Misc`Async`"];
 SetTimeout::usage = "SetTimeout[expr, milliseconds_Number] async scheldued task once after period"
 SetInterval::usage = "SetInterval[expr, milliseconds_Number] async scheldued task every period"
 CancelTimeout::usage = "CancelTimeout[task] cancel the timer"
+CancelInterval::usage = ""
+
 
 Begin["`Private`"]; 
 
