@@ -150,6 +150,8 @@ EventHandler[cid_String, ev_List] := Module[{eventsList = {}},
     eventsList
 ]
 
+EventHandler[Global`CellObj[cid_String], ev_List] := EventHandler[cid, ev]
+
 (* better to use this instead of EventBind *)
 EventHandler[EventObject[assoc_Association], handler_] ^:= (
     EventHandlers[assoc["id"]] = handler;
