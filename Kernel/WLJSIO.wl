@@ -40,17 +40,13 @@ WLJSAliveQ[uid_String] := (
     ]
 )
 
-WLJSTransportScript[port_, template_, secret_:Null] := If[
-    NumberQ[Global`Port],
-    ScriptTemplate[Global`Port, Global`Regime, If[StringQ[Global`Secret], Global`Secret, Null]],
-    ScriptTemplate[port, template, secret]
-]
-
-WLJSTransportScript[] := If[
-    NumberQ[Global`Port],
-    ScriptTemplate[Global`Port, Global`Regime, If[StringQ[Global`Secret], Global`Secret, Null]],
+WLJSTransportScript[OptionPattern[]] := If[
+    NumberQ[OptionValue["Port"]],
+    ScriptTemplate[OptionValue["Port"], OptionValue["Regime"], If[OptionValue["Secret"], OptionValue["Secret"], Null]],
     "Specify a mode and a port!"
 ]
+
+Options[WLJSTransportScript] = {"Port"->Null, "Regime"->"Standalone", "Secret"->Null}
 
 ScriptTemplate[port_, "Standalone", secret_] := 
 If[secret =!= Null,
