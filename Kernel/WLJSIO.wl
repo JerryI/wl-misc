@@ -40,7 +40,7 @@ WLJSAliveQ[uid_String] := (
     ]
 )
 
-WLJSTransportScript[OptionPattern[]] := If[
+WLJSTransportScript[OptionsPattern[]] := If[
     NumberQ[OptionValue["Port"]],
     ScriptTemplate[OptionValue["Port"], OptionValue["Regime"], If[OptionValue["Secret"], OptionValue["Secret"], Null]],
     "Specify a mode and a port!"
