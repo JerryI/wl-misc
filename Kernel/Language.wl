@@ -33,6 +33,7 @@ SafeTable[expr_, dims_, OptionsPattern[]] := (
 SetAttributes[SafeTable, HoldAll]
 Options[SafeTable] = {"Buffer" :> SafeTable`Buffer}
 
+
 End[];
 
 EndPackage[];

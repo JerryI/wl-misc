@@ -21,7 +21,8 @@ PacletObject[
       {
         "Asset",
         "Assets" -> {
-          
+          {"Assets", "InterpreterExtension.js"},
+          {"Assets", "ServerAPI.js"}
         }
       }
     }

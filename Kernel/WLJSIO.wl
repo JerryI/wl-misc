@@ -6,28 +6,33 @@ WLJSAliveQ::usage = ""
 
 Begin["`Private`"]
 
-WLJSTransportHandler[cl_, data_ByteArray] := Block[{Global`client = cl},
+WLJSTransportHandler[cl_, data_ByteArray] := Block[{Global`$Client = cl},
     ToExpression[data//ByteArrayToString];
 ]
 
 $DefaultSerializer = ExportByteArray[#, "ExpressionJSON"]&
 
-Global`NotebookAddTracking[symbol_] := With[{cli = Global`client, name = SymbolName[Unevaluated[symbol]]},
+Global`WLJSIOAddTracking[symbol_] := With[{cli = Global`$Client, name = SymbolName[Unevaluated[symbol]]},
     WLJSTransportHandler["AddTracking"][symbol, name, cli, Function[{client, value},
-        WebSocketSend[client, Global`FrontUpdateSymbol[name, value] // $DefaultSerializer]
+        WebSocketSend[client, Global`WLJSIOUpdateSymbol[name, value] // $DefaultSerializer]
     ]]
 ]
 
-SetAttributes[Global`NotebookAddTracking, HoldFirst]
+SetAttributes[Global`WLJSIOAddTracking, HoldFirst]
 
-Global`NotebookGetSymbol[uid_, params_][expr_] := With[{client = Global`client},
+Global`WLJSIOGetSymbol[uid_, params_][expr_] := With[{client = Global`$Client},
     WLJSTransportHandler["GetSymbol"][expr, client, Function[result,
-        WebSocketSend[client, Global`PromiseResolve[uid, result] // $DefaultSerializer] 
+        WebSocketSend[client, Global`WLJSIOPromiseResolve[uid, result] // $DefaultSerializer] 
     ]]
 ];
 
+Global`WLJSIOPromise[uid_, params_][expr_] := With[{client = Global`$Client},
+    Print["WLJS promise >> get with id "<>uid];
+    WebSocketSend[client, Global`WLJSIOPromiseResolve[uid, expr] // $DefaultSerializer];
+];
+
 IDCards = <||>;
-Global`WLJSIDCardRegister[uid_String] := (Print["Transport registered as "<>uid]; IDCards[uid] = Global`client)
+Global`WLJSIDCardRegister[uid_String] := (Print["Transport registered as "<>uid]; IDCards[uid] = Global`$Client)
 
 WLJSAliveQ[uid_String] := (
     If[KeyExistsQ[IDCards, uid],
@@ -40,31 +45,50 @@ WLJSAliveQ[uid_String] := (
     ]
 )
 
-WLJSTransportScript[OptionsPattern[]] := If[
-    NumberQ[OptionValue["Port"]],
-    ScriptTemplate[OptionValue["Port"], OptionValue["Regime"], If[OptionValue["Secret"] // StringQ, OptionValue["Secret"], Null]],
+WLJSTransportScript[OptionsPattern[]] := If[NumberQ[OptionValue["Port"]],
+    Switch[{OptionValue["TwoKernels"], OptionValue["Secret"]},
+        {False, Null},
+        ScriptTemplate[OptionValue["Port"], "server.init({socket: socket})"]
+    ,
+        {True, Null},
+        ScriptTemplate[OptionValue["Port"], "server.init({socket: socket, kernel: true})"]
+    ,
+        {False, _},
+        ScriptTemplate[OptionValue["Port"], "server.init({socket: socket}); server.send('WLJSIDCardRegister[\""<>OptionValue["Secret"]<>"\"]')"]
+    ,
+        {True, _},
+        ScriptTemplate[OptionValue["Port"], "server.init({socket: socket, kernel: true}); server.send('WLJSIDCardRegister[\""<>OptionValue["Secret"]<>"\"]')"]
+    ]
+,
     "Specify a mode and a port!"
 ]
 
-Options[WLJSTransportScript] = {"Port"->Null, "Regime"->"Standalone", "Secret"->Null}
+Options[WLJSTransportScript] = {"Port"->Null, "Regime"->"Standalone", "Secret"->Null, "TwoKernels" -> False}
 
-ScriptTemplate[port_, "Standalone", secret_] := 
-If[secret =!= Null,
-    Print["Secret script: "<>secret];
+assets = $InputFileName // DirectoryName // ParentDirectory;
+
+commonScript = StringRiffle[{
+    Import[FileNameJoin[{assets, "Assets", "ServerAPI.js"}], "String"],
+    Import[FileNameJoin[{assets, "Assets", "InterpreterExtension.js"}], "String"]
+}, "\n"];
+
+ScriptTemplate[port_, initCode_] := 
     StringTemplate["
         <script type=\"module\">
+            ``
             var socket = new WebSocket(\"ws://\"+window.location.hostname+':'+``);
+            window.server = new Server('Master Kernel');
+
             socket.onopen = function(e) {
               console.log(\"[open]\");
-              server.kernel.socket = socket;
-              server.init(socket);
-              socket.send('WLJSIDCardRegister[\"``\"]');
+              
+              ``;
             }; 
 
             socket.onmessage = function(event) {
               //create global context
               //callid
-              const uid = Date.now() + Math.floor(Math.random() * 100);
+              const uid = Math.floor(Math.random() * 100);
               var global = {call: uid};
               interpretate(JSON.parse(event.data), {global: global});
             };
@@ -74,37 +98,10 @@ If[secret =!= Null,
               alert('Connection lost. Please, update the page to see new changes.');
             }; 
 
-            core.SlientPing = () => {
-                console.log('Ppspsp... server is there');
-            }
+            
         </script>
-    "][port, secret]
-,
+    "][commonScript, port, initCode]
 
-    StringTemplate["
-        <script type=\"module\">
-            var socket = new WebSocket(\"ws://\"+window.location.hostname+':'+``);
-            socket.onopen = function(e) {
-              console.log(\"[open]\");
-              server.kernel.socket = socket;
-              server.init(socket);
-            }; 
-
-            socket.onmessage = function(event) {
-              //create global context
-              //callid
-              const uid = Date.now() + Math.floor(Math.random() * 100);
-              var global = {call: uid};
-              interpretate(JSON.parse(event.data), {global: global});
-            };
-
-            socket.onclose = function(event) {
-              console.log(event);
-              alert('Connection lost. Please, update the page to see new changes.');
-            }; 
-        </script>
-    "][port]
-]
 
 End[];
 
