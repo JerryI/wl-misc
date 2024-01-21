@@ -28,6 +28,8 @@ EventHandlers::usage = "internal function, which hold the binded function"
 
 EventListener::usage = "internal command"
 
+EventPacket::usage = "just handy wrapper"
+
 Begin["`Private`"]; 
 
 Unprotect[EventHandler]
@@ -47,7 +49,7 @@ EventHandler[a_String, f_Function] := With[{},
 ]
 
 EventHandler[a_String, f_List] := With[{},
-    If[!AssociationQ[EventHandlers[a]], EventHandlers[a] = <||>];
+    If[!AssociationQ[EventHandlers[a] ], EventHandlers[a] = <||>];
     EventHandlers[a] = Join[EventHandlers[a], Association[f] ];
     a 
 ]
@@ -55,13 +57,13 @@ EventHandler[a_String, f_List] := With[{},
 EventRemove[a_String, part_] := (EventHandlers[a] = Join[EventHandlers[a], <|part -> Null|>]);
 EventRemove[a_String] := (EventHandlers[a] = .)
 
-EventRemove[EventObject[a_Association]] := EventRemove[ a["id"] ]
+EventRemove[EventObject[a_Association] ] := EventRemove[ a["id"] ]
 EventRemove[EventObject[a_Association], t_] := EventRemove[ a["id"], t ]
 
 EventObject /: Delete[EventObject[a_Association], opts___] := EventRemove[EventObject[a], opts]
 EventObject /: DeleteObject[EventObject[a_Association], opts___] := EventRemove[EventObject[a], opts]
 
-EventFire[EventObject[a_Association]] := With[{uid = a["id"]}, 
+EventFire[EventObject[a_Association] ] := With[{uid = a["id"]}, 
     If[KeyExistsQ[a, "Initial"],
         EventFire[ uid, a["Initial"] ]
     ,
@@ -81,15 +83,14 @@ EventFire[EventObject[a_Association], part_, data_] := With[{uid = a["id"]},
     EventObject[a]
 ]
 
-EventFire[uid_String, part_String, data_] := EventFire[EventHandlers[uid], part, data]
+EventFire[uid_String, part_, data_] := EventFire[EventHandlers[uid], part, data]
 
-EventFire[assoc_Association, part_String, data_] := With[{replacements = assoc},
-
+EventFire[assoc_Association, part_, data_] := With[{replacements = assoc},
     (part /. Normal[replacements])[data]
 ]
 
-EventFire[router_EventRouter, part_String, data_] := With[{},
-    EventFire[#, part, data] &/@ router[[1]];
+EventFire[router_EventRouter, part_, data_] := With[{},
+    EventFire[#, part, data] &/@ router[[1]]
 ]
 
 EventFire[uid_String, data_] := EventFire[uid, "!_-_!", data]
@@ -101,20 +102,20 @@ EventClone[assocId_String] := (
         Switch[Head[t],
             EventRouter,
 
-            Print["Events >> adding new event to an existing chain"];
+            (*Print["Events >> adding new event to an existing chain"];*)
             t = Append[t, cuid];
         ,
             EventHandlers,
 
-            Print["Events >> making a router from an empty event object"];
+            (*Print["Events >> making a router from an empty event object"];*)
             t = EventRouter[{cuid}];
         ,
             Association,
 
-            Print["Events >> reroute existing handlers"];
+            (*Print["Events >> reroute existing handlers"];*)
             With[{nid = CreateUUID[]},
                 EventHandlers[nid] = t;
-                t = EventRouter[{nid, cuid}];
+                EventHandlers[assocId] = EventRouter[{nid, cuid}];
             ];
         ,
             _,

@@ -14,7 +14,13 @@ PacletObject[
       {
         "Kernel",
         "Root" -> "Kernel",
-        "Context" -> {{"JerryI`Misc`Events`", "Events.wl"}, {"JerryI`Misc`WLJS`Transport`", "WLJSIO.wl"}, {"JerryI`Misc`Async`", "Async.wl"}, {"JerryI`Misc`Language`", "Language.wl"}},
+        "Context" -> {
+          {"JerryI`Misc`Events`", "Events.wl"}, 
+          {"JerryI`Misc`Events`Promise`", "Promise.wl"},
+          {"JerryI`Misc`WLJS`Transport`", "WLJSIO.wl"}, 
+          {"JerryI`Misc`Async`", "Async.wl"}, 
+          {"JerryI`Misc`Language`", "Language.wl"}
+        },
         "Symbols" -> {}
       },
  

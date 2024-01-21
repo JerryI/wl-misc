@@ -4,7 +4,11 @@ WLJSTransportHandler::usage = ""
 WLJSTransportScript::usage = ""
 WLJSAliveQ::usage = ""
 
+Offload::usage = "Hold expression to be evaluated on a frontend"
+
 Begin["`Private`"]
+
+SetAttributes[Offload, HoldFirst]
 
 WLJSTransportHandler[cl_, data_ByteArray] := Block[{Global`$Client = cl},
     ToExpression[data//ByteArrayToString];

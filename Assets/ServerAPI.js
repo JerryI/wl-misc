@@ -17,9 +17,12 @@ class fakeSocket {
 
   }
 }  
+
+const promises = {}
+
 //Server API
-class Server {
-    promises = {};
+window.Server = class {
+   
     socket = new fakeSocket();  
   
     trackedSymbols = {};
@@ -65,8 +68,9 @@ class Server {
       const uid = uuidv4();
   
       const promise = new Deferred();
-      this.promises[uid] = promise;
-  
+      promises[uid] = promise;
+      console.log('Asking expr');
+      console.log(expr);
       this.socket.send('WLJSIOPromise["'+uid+'", ""]['+expr+']');
   
       return promise.promise 
@@ -75,6 +79,12 @@ class Server {
     emitt(uid, data, type = 'Default') {
       this.socket.send('EventFire["'+uid+'", "'+type+'", '+data+']');
     };
+
+    _emitt(uid, data, type) {
+      //unescaped version
+      console.log({uid:uid, data:data, type:type});
+      this.socket.send('EventFire["'+uid+'", '+type+', '+data+']');
+    };    
   
     send(expr) {
       this.socket.send(expr);
@@ -84,7 +94,7 @@ class Server {
       const uid = uuidv4();
   
       const promise = new Deferred();
-      this.promises[uid] = promise;
+      promises[uid] = promise;
       //not implemented
       //console.error('askKernel is not implemented');
       //console.log('NotebookPromiseKernel["'+uid+'", ""][Hold['+expr+']]');
@@ -115,9 +125,13 @@ core.WLJSIOUpdateSymbol = (args, env) => {
 
 core.WLJSIOPromiseResolve = (args, env) => {
     const uid = interpretate(args[0], env);
+    if (args[1] == '$Failed') {
+      promises[uid].reject(args[1]);
+    } else {
+      promises[uid].resolve(args[1]);
+    }
     console.log('promise resolved! : ' + uid);
-    server.kernel.promises[uid].resolve(args[1]);
-    delete server.kernel.promises[uid];
+    delete promises[uid];
 }
 
 core.FireEvent = function(args, env) {
