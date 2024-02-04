@@ -39,7 +39,7 @@ ClearAll[EventHandler]
 EventBind[any_, handler_Function] := EventHandler[any, handler]
 
 EventHandler[EventObject[a_Association], f_] := With[{},
-    EventHandler[a["id"], f];
+    EventHandler[a["Id"], f];
     EventObject[a]
 ]
 
@@ -57,13 +57,13 @@ EventHandler[a_String, f_List] := With[{},
 EventRemove[a_String, part_] := (EventHandlers[a] = Join[EventHandlers[a], <|part -> Null|>]);
 EventRemove[a_String] := (EventHandlers[a] = .)
 
-EventRemove[EventObject[a_Association] ] := EventRemove[ a["id"] ]
-EventRemove[EventObject[a_Association], t_] := EventRemove[ a["id"], t ]
+EventRemove[EventObject[a_Association] ] := EventRemove[ a["Id"] ]
+EventRemove[EventObject[a_Association], t_] := EventRemove[ a["Id"], t ]
 
 EventObject /: Delete[EventObject[a_Association], opts___] := EventRemove[EventObject[a], opts]
 EventObject /: DeleteObject[EventObject[a_Association], opts___] := EventRemove[EventObject[a], opts]
 
-EventFire[EventObject[a_Association] ] := With[{uid = a["id"]}, 
+EventFire[EventObject[a_Association] ] := With[{uid = a["Id"]}, 
     If[KeyExistsQ[a, "Initial"],
         EventFire[ uid, a["Initial"] ]
     ,
@@ -73,7 +73,7 @@ EventFire[EventObject[a_Association] ] := With[{uid = a["id"]},
     EventObject[a]
 ]
 
-EventFire[EventObject[a_Association], part_, data_] := With[{uid = a["id"]}, 
+EventFire[EventObject[a_Association], part_, data_] := With[{uid = a["Id"]}, 
     If[KeyExistsQ[a, "Initial"],
         EventFire[ uid, part, a["Initial"] ]
     ,
@@ -123,11 +123,11 @@ EventClone[assocId_String] := (
             Return[$Failed];
         ];
 
-        EventObject[<|"id" -> cuid|>]
+        EventObject[<|"Id" -> cuid|>]
     ]
 )
 
-EventClone[EventObject[assoc_]] := EventObject[Join[assoc, EventClone[assoc["id"] ][[1]] ] ]
+EventClone[EventObject[assoc_]] := EventObject[Join[assoc, EventClone[assoc["Id"] ][[1]] ] ]
 
 EventJoin[seq__] := With[{list = List[seq], joined = CreateUUID[]},
 Module[{handler, data = <||>},
@@ -141,13 +141,13 @@ Module[{handler, data = <||>},
                 (* check if types convertion is needed *)
                 (* associations will be merged together *)
                 (* the rest will be stored as id=value pair *)
-                If[!AssociationQ[#[[1]]["Initial"]], data[#[[1]]["id"]] = #[[1]]["Initial"], data = Join[data, #[[1]]["Initial"]]];
+                If[!AssociationQ[#[[1]]["Initial"]], data[#[[1]]["Id"]] = #[[1]]["Initial"], data = Join[data, #[[1]]["Initial"]]];
             ];
         ];
         
         With[{cloned = EventClone[#]},
             EventHandler[cloned, Function[d,
-                handler[cloned[[1]]["id"], d];
+                handler[cloned[[1]]["Id"], d];
             ]];
         ];
     ]&/@list;
@@ -157,7 +157,7 @@ Module[{handler, data = <||>},
         EventFire[joined, data]
     ];
 
-    EventObject[<|"id" -> joined, "Initial" -> data, "storage" -> Hold[data], "handler" -> Hold[handler]|>]
+    EventObject[<|"Id" -> joined, "Initial" -> data, "storage" -> Hold[data], "handler" -> Hold[handler]|>]
 ] ] 
 
 EventObject /: Join[evs__EventObject] := EventJoin[evs]

@@ -18,7 +18,7 @@ window.server = undefined;
 
 interpretate.anonymous = async (d, org) => {
     //TODO Check if it set delayed or set... if set, then one need only to cache it
-    console.warn('Anonimous symbol');  
+    console.warn('Anonimous symbol: ' + JSON.stringify(d));  
   
     let name;
     //check it is a plain symbol
@@ -37,7 +37,7 @@ interpretate.anonymous = async (d, org) => {
     console.warn('sending request to a server... for'+name);
     data = await server.kernel.getSymbol(name); //get the data
     console.log('got');
-    console.log(data);
+    //console.log(data);
     
     //check for strings 
     let symbolQ = typeof data === 'string';

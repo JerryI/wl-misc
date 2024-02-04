@@ -111,7 +111,7 @@ window.Server = class {
 
 core.WLJSIOUpdateSymbol = (args, env) => {
     const name = interpretate(args[0], env);
-    console.log("update");
+    //console.log("update");
     //update
     core[name].data = args[1];
 
@@ -164,3 +164,28 @@ core.TalkKernel = async(args, env) => {
     const wrapper = await interpretate(args[1], env);
     server.kernel.send(wrapper + '["' + JSON.stringify(data).replace(/"/gm, "\\\"") + '"]');
 }
+
+const bjtag = decodeURIComponent('%3Cscript%20type%3D%22module%22%3E');
+const ejtsg = decodeURIComponent('%3C%2Fscript%3E');
+
+core.WLXEmbed = async (args, env) => {
+    const options = await core._getRules(args, env);
+    const html = await interpretate(args[0], env);
+    if (Array.isArray(html)) {
+        const jsdata = html.pop();
+        env.element.innerHTML = html.join('');
+        
+        const script = document.createElement('script');
+        script.type = "module";
+        script.textContent = jsdata.replaceAll(bjtag, '').replaceAll(ejtsg, '');
+        env.element.appendChild(script);
+        return;
+    }
+    env.element.innerHTML = html;
+    if ('JS' in options) {
+        const jsdata = options.JS.replaceAll(bjtag, '').replaceAll(ejtsg, '');
+        const script = document.createElement('script');
+        script.textContent = jsdata;
+        env.element.appendChild(script);
+    }
+}   

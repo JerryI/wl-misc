@@ -11,11 +11,11 @@ Begin["`Private`"];
 
 
 Looper[] := While[True,
-    If[!Looper`Flag, Pause[0.1] ];
+    If[!Looper`Flag, Pause[0.01] ];
     If[Keys[Looper`Tasks] === {}, Looper`Flag = False,
         With[{task = Looper`Tasks[#]},
             task["Expr"]; 
-            If[!task["Continuous"], Looper`Tasks[#] = ., Pause[0.1] ]; 
+            If[!task["Continuous"], Looper`Tasks[#] = ., Pause[0.01] ]; 
         ] &/@ Keys[Looper`Tasks];
     ];
 ]

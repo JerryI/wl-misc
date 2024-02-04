@@ -4,6 +4,10 @@ WLJSTransportHandler::usage = ""
 WLJSTransportScript::usage = ""
 WLJSAliveQ::usage = ""
 
+WLXEmbed::usage = ""
+
+WLJSTransportSend::usage = ""
+
 Offload::usage = "Hold expression to be evaluated on a frontend"
 
 Begin["`Private`"]
@@ -13,6 +17,8 @@ SetAttributes[Offload, HoldFirst]
 WLJSTransportHandler[cl_, data_ByteArray] := Block[{Global`$Client = cl},
     ToExpression[data//ByteArrayToString];
 ]
+
+WLJSTransportSend[expr_, client_] := WebSocketSend[client, expr // $DefaultSerializer]
 
 $DefaultSerializer = ExportByteArray[#, "ExpressionJSON"]&
 

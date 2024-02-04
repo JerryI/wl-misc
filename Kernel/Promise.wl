@@ -10,7 +10,31 @@ Then::usage = ""
 
 Begin["`Private`"]
 
-Promise[] := With[{uid = CreateUUID[]}, Promise[uid] ] 
+resolved = <||>;
+earlyBird[uid_][data_] := (resolved[uid] = data);
+ResolvedQ[Promise[uid_] ] := KeyExistsQ[resolved, uid]
+
+Promise /: WaitAll[ Promise[uid_] ] := Module[{timeout = 500},
+    Echo[">> Waiting for promise to be resolved ... "];
+    While[!KeyExistsQ[resolved, uid] && timeout > 0,
+        timeout--;
+        Pause[0.01];
+    ];
+    If[timeout > 0,
+        resolved[uid]
+    ,
+        Echo[">> Promise >> Timeout!"];
+        $Failed
+    ]
+] 
+
+Promise[] := With[{uid = CreateUUID[]}, 
+    EventHandler[uid, {
+        Resolve -> earlyBird[uid]
+    }];
+
+    Promise[uid] 
+] 
 Promise /: EventHandler[Promise[uid_], any_ ] := EventHandler[uid, any]
 
 Promise /: EventFire[Promise[uid_], Resolve, data_] := With[{},
@@ -29,10 +53,18 @@ Then[_, resolve_] := Then[Null, resolve, Null]
 Then[p_Promise, resolve_] := Then[p, resolve, Null]
 Then[p_Promise, resolve_, reject_] := With[{},
     Echo["Subscribe!"];
-    EventHandler[p, {
-        Resolve -> resolve,
-        Reject  -> reject
-    }];
+    If[!ResolvedQ[p],
+        EventHandler[p, {
+            Resolve -> resolve,
+            Reject  -> reject
+        }]
+    ,
+        Echo["Promise >> already resolved!"];
+        With[{result = resolved[p // First], u = p // First},
+            resolved[u] = .;
+            resolve[result]
+        ]
+    ]
 ]
 
 Then[list_List, resolve_] := Then[list, resolve, Null]
