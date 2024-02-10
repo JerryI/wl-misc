@@ -172,8 +172,10 @@ core.WLXEmbed = async (args, env) => {
     const options = await core._getRules(args, env);
     const html = await interpretate(args[0], env);
     if (Array.isArray(html)) {
+        //console.log(JSON.stringify(html));
         const jsdata = html.pop();
         env.element.innerHTML = html.join('');
+        
         
         const script = document.createElement('script');
         script.type = "module";

@@ -15,7 +15,7 @@ earlyBird[uid_][data_] := (resolved[uid] = data);
 ResolvedQ[Promise[uid_] ] := KeyExistsQ[resolved, uid]
 
 Promise /: WaitAll[ Promise[uid_] ] := Module[{timeout = 500},
-    Echo[">> Waiting for promise to be resolved ... "];
+    (*Echo[">> Waiting for promise to be resolved ... "];*)
     While[!KeyExistsQ[resolved, uid] && timeout > 0,
         timeout--;
         Pause[0.01];

@@ -37,7 +37,7 @@ Global`WLJSIOGetSymbol[uid_, params_][expr_] := With[{client = Global`$Client},
 ];
 
 Global`WLJSIOPromise[uid_, params_][expr_] := With[{client = Global`$Client},
-    Print["WLJS promise >> get with id "<>uid];
+    (*Print["WLJS promise >> get with id "<>uid];*)
     WebSocketSend[client, Global`WLJSIOPromiseResolve[uid, expr] // $DefaultSerializer];
 ];
 
