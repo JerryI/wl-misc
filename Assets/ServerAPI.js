@@ -169,25 +169,21 @@ const bjtag = decodeURIComponent('%3Cscript%20type%3D%22module%22%3E');
 const ejtsg = decodeURIComponent('%3C%2Fscript%3E');
 
 core.WLXEmbed = async (args, env) => {
-    const options = await core._getRules(args, env);
-    const html = await interpretate(args[0], env);
+    const options = await core._getRules(args, {...env, hold:true});
+    let html = await interpretate(args[0], env);
+
     if (Array.isArray(html)) {
-        //console.log(JSON.stringify(html));
-        const jsdata = html.pop();
-        env.element.innerHTML = html.join('');
-        
-        
-        const script = document.createElement('script');
-        script.type = "module";
-        script.textContent = jsdata.replaceAll(bjtag, '').replaceAll(ejtsg, '');
-        env.element.appendChild(script);
-        return;
+      html = html.join('\n');   
     }
-    env.element.innerHTML = html;
-    if ('JS' in options) {
-        const jsdata = options.JS.replaceAll(bjtag, '').replaceAll(ejtsg, '');
-        const script = document.createElement('script');
-        script.textContent = jsdata;
-        env.element.appendChild(script);
+
+    setInnerHTML(env.element, html);
+
+    if ('SideEffect' in options) {
+      await interpretate(options.SideEffect, env);
     }
 }   
+
+core.WLXEmbed.destroy = async (args, env) => {
+  await core._getRules(args, {...env});
+  await interpretate(args[0], env);
+}

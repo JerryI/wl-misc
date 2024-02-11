@@ -4,8 +4,6 @@ WLJSTransportHandler::usage = ""
 WLJSTransportScript::usage = ""
 WLJSAliveQ::usage = ""
 
-WLXEmbed::usage = ""
-
 WLJSTransportSend::usage = ""
 
 Offload::usage = "Hold expression to be evaluated on a frontend"
@@ -116,3 +114,5 @@ ScriptTemplate[port_, initCode_] :=
 End[];
 
 EndPackage[];
+
+System`WLXEmbed;

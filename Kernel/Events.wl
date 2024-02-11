@@ -43,7 +43,7 @@ EventHandler[EventObject[a_Association], f_] := With[{},
     EventObject[a]
 ]
 
-EventHandler[a_String, f_Function] := With[{},
+EventHandler[a_String, f_] := With[{},
     EventHandler[a, {_String -> f}];
     a
 ]
