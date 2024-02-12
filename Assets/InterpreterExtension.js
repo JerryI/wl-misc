@@ -60,7 +60,7 @@ interpretate.anonymous = async (d, org) => {
     //if it is OK
   
     core[name] = async (args, env) => {
-      console.log('calling our symbol...');
+      console.log('IE: calling our symbol...');
       //evaluate in the context
       const data = await interpretate(core[name].data, env);
   
@@ -72,6 +72,7 @@ interpretate.anonymous = async (d, org) => {
   
     core[name].update = async (args, env) => {
       //evaluate in the context
+      console.log('IE: update was called...');
    
       const data = await interpretate(core[name].data, env);
       //if (env.hold) return ['JSObject', data];
