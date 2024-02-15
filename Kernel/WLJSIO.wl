@@ -61,11 +61,11 @@ WLJSTransportScript[OptionsPattern[]] := If[NumberQ[OptionValue["Port"]],
         {True, Null},
         ScriptTemplate[OptionValue["Port"], "server.init({socket: socket, kernel: true})"]
     ,
-        {False, _},
-        ScriptTemplate[OptionValue["Port"], "server.init({socket: socket}); server.send('WLJSIDCardRegister[\""<>OptionValue["Secret"]<>"\"]')"]
+        {False, _String},
+        ScriptTemplate[OptionValue["Port"], "server.init({socket: socket}); server.emitt('"<>OptionValue["Secret"]<>"', 'True', 'Connected');"]
     ,
         {True, _},
-        ScriptTemplate[OptionValue["Port"], "server.init({socket: socket, kernel: true}); server.send('WLJSIDCardRegister[\""<>OptionValue["Secret"]<>"\"]')"]
+        ScriptTemplate[OptionValue["Port"], "server.init({socket: socket, kernel: true}); "]
     ]
 ,
     "Specify a mode and a port!"
