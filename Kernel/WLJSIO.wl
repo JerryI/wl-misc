@@ -54,7 +54,7 @@ WLJSAliveQ[uid_String] := (
 )
 
 WLJSTransportScript[OptionsPattern[]] := If[NumberQ[OptionValue["Port"]],
-    Switch[{OptionValue["TwoKernels"], OptionValue["Secret"]},
+    Switch[{OptionValue["TwoKernels"], OptionValue["Event"]},
         {False, Null},
         ScriptTemplate[OptionValue["Port"], "server.init({socket: socket})"]
     ,
@@ -62,7 +62,7 @@ WLJSTransportScript[OptionsPattern[]] := If[NumberQ[OptionValue["Port"]],
         ScriptTemplate[OptionValue["Port"], "server.init({socket: socket, kernel: true})"]
     ,
         {False, _String},
-        ScriptTemplate[OptionValue["Port"], "server.init({socket: socket}); server.emitt('"<>OptionValue["Secret"]<>"', 'True', 'Connected');"]
+        ScriptTemplate[OptionValue["Port"], "server.init({socket: socket}); server.emitt('"<>OptionValue["Event"]<>"', 'True', 'Connected');"]
     ,
         {True, _},
         ScriptTemplate[OptionValue["Port"], "server.init({socket: socket, kernel: true}); "]
@@ -71,7 +71,7 @@ WLJSTransportScript[OptionsPattern[]] := If[NumberQ[OptionValue["Port"]],
     "Specify a mode and a port!"
 ]
 
-Options[WLJSTransportScript] = {"Port"->Null, "Regime"->"Standalone", "Secret"->Null, "TwoKernels" -> False}
+Options[WLJSTransportScript] = {"Port"->Null, "Regime"->"Standalone", "Event"->Null, "TwoKernels" -> False}
 
 assets = $InputFileName // DirectoryName // ParentDirectory;
 
