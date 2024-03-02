@@ -26,14 +26,17 @@ EventsRack::usage = "depricated!"
 EmittedEvent::usage = "internal function called by the frontend to fire an event on a kernel"
 EventHandlers::usage = "internal function, which hold the binded function"
 
+Unprotect[EventHandler]
+ClearAll[EventHandler]
+
+EventHandler::usage = "EventHandler[ev_String | _EventObject, {handlers___Rule | handlers___RuleDelayed}] ev_ binds an event object represented as a string or EventObject or anything compatible with this type to a single or multiple handling functions (multiple - only if patterns do not intersect). Returns an original event-object ev"
+
+
 EventListener::usage = "internal command"
 
 EventPacket::usage = "just handy wrapper"
 
 Begin["`Private`"]; 
-
-Unprotect[EventHandler]
-ClearAll[EventHandler]
 
 (* old alias *)
 EventBind[any_, handler_Function] := EventHandler[any, handler]
