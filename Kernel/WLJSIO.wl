@@ -54,24 +54,30 @@ WLJSAliveQ[uid_String] := (
 )
 
 WLJSTransportScript[OptionsPattern[]] := If[NumberQ[OptionValue["Port"]],
-    Switch[{OptionValue["TwoKernels"], OptionValue["Event"]},
-        {False, Null},
+    Switch[{OptionValue["TwoKernels"], OptionValue["Event"], OptionValue["Host"]},
+        {False, Null, Null},
         ScriptTemplate[OptionValue["Port"], "server.init({socket: socket})"]
     ,
-        {True, Null},
+        {True, Null, Null},
         ScriptTemplate[OptionValue["Port"], "server.init({socket: socket, kernel: true})"]
     ,
-        {False, _String},
+        {False, _String, Null},
         ScriptTemplate[OptionValue["Port"], "server.init({socket: socket}); server.emitt('"<>OptionValue["Event"]<>"', 'True', 'Connected');"]
     ,
-        {True, _},
+        {True, _, Null},
         ScriptTemplate[OptionValue["Port"], "server.init({socket: socket, kernel: true}); "]
+    ,
+        {False, Null, _String},
+        ScriptTemplate[OptionValue["Port"], OptionValue["Host"], "server.init({socket: socket}); "]
+    ,
+        {True, Null, _String},
+        ScriptTemplate[OptionValue["Port"], OptionValue["Host"], "server.init({socket: socket, kernel: true}); "]        
     ]
 ,
     "Specify a mode and a port!"
 ]
 
-Options[WLJSTransportScript] = {"Port"->Null, "Regime"->"Standalone", "Event"->Null, "TwoKernels" -> False}
+Options[WLJSTransportScript] = {"Port"->Null, "Host"->Null, "Regime"->"Standalone", "Event"->Null, "TwoKernels" -> False}
 
 assets = $InputFileName // DirectoryName // ParentDirectory;
 
@@ -109,6 +115,36 @@ ScriptTemplate[port_, initCode_] :=
             
         </script>
     "][commonScript, port, initCode]
+
+ScriptTemplate[port_, host_, initCode_] := 
+    StringTemplate["
+        <script type=\"module\">
+            ``
+            var socket = new WebSocket(\"ws://\"+'``'+':'+``);
+            window.server = new Server('Master Kernel');
+
+            socket.onopen = function(e) {
+              console.log(\"[open]\");
+              
+              ``;
+            }; 
+
+            socket.onmessage = function(event) {
+              //create global context
+              //callid
+              const uid = Math.floor(Math.random() * 100);
+              var global = {call: uid};
+              interpretate(JSON.parse(event.data), {global: global});
+            };
+
+            socket.onclose = function(event) {
+              console.log(event);
+              alert('Connection lost. Please, update the page to see new changes.');
+            }; 
+
+            
+        </script>
+    "][commonScript, host, port, initCode]    
 
 
 End[];
