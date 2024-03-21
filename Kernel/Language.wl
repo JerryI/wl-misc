@@ -4,7 +4,9 @@ LeakyModule::usage = "Module, that leaks on purpose"
 
 SafeTable::usage = "Table that stores results in array, so that any Abort signal will not wipe it"
 
+
 Begin["`Private`"]; 
+
 
 Garbage = {}
 
@@ -32,6 +34,7 @@ SafeTable[expr_, dims_, OptionsPattern[]] := (
 
 SetAttributes[SafeTable, HoldAll]
 Options[SafeTable] = {"Buffer" :> SafeTable`Buffer}
+
 
 End[];
 

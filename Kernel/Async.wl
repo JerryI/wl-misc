@@ -5,8 +5,35 @@ SetInterval::usage = "SetInterval[expr, milliseconds_Number] async scheldued tas
 CancelTimeout::usage = "CancelTimeout[task] cancel the timer"
 CancelInterval::usage = ""
 
+Looper::usage = ""
 
 Begin["`Private`"]; 
+
+
+Looper[] := While[True,
+    If[!Looper`Flag, Pause[0.01] ];
+    If[Keys[Looper`Tasks] === {}, Looper`Flag = False,
+        With[{task = Looper`Tasks[#]},
+            task["Expr"]; 
+            If[!task["Continuous"], Looper`Tasks[#] = ., Pause[0.01] ]; 
+        ] &/@ Keys[Looper`Tasks];
+    ];
+]
+
+Looper`Submit[expr_, OptionsPattern[] ] := With[{uid = CreateUUID[] },
+    Looper`Tasks[ uid ] = <|"Expr" :> expr, "Continuous" -> OptionValue["Continuous"]|>;
+    Looper`Flag = True;
+    Looper`Task[uid]
+]
+
+Looper`Task /: Delete[Looper`Task[uid_String] ] := Looper`Tasks[uid] = .;
+
+SetAttributes[Looper`Submit, HoldFirst]
+
+Options[Looper`Submit] = {"Continuous" -> False}
+
+Looper`Tasks = <||>
+Looper`Flag = True
 
 SetTimeout[expr_, timeout_] := obj = SessionSubmit[ScheduledTask[expr, {Quantity[timeout/1000, "Seconds"]}]]
 CancelTimeout[t_TaskObject] := TaskRemove[t]

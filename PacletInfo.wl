@@ -7,21 +7,28 @@ PacletObject[
     "Creator" -> "Kirill Vasin",
     "License" -> "MIT",
     "PublisherID" -> "JerryI",
-    "Version" -> "0.3.0",
+    "Version" -> "0.3.1",
     "WolframVersion" -> "5+",
     "PrimaryContext" -> "JerryI`Misc`",
     "Extensions" -> {
       {
         "Kernel",
         "Root" -> "Kernel",
-        "Context" -> {{"JerryI`Misc`Events`", "Events.wl"}, {"JerryI`Misc`WLJS`Transport`", "WLJSIO.wl"}, {"JerryI`Misc`Async`", "Async.wl"}, {"JerryI`Misc`Language`", "Language.wl"}},
+        "Context" -> {
+          {"JerryI`Misc`Events`", "Events.wl"}, 
+          {"JerryI`Misc`Events`Promise`", "Promise.wl"},
+          {"JerryI`Misc`WLJS`Transport`", "WLJSIO.wl"}, 
+          {"JerryI`Misc`Async`", "Async.wl"}, 
+          {"JerryI`Misc`Language`", "Language.wl"}
+        },
         "Symbols" -> {}
       },
  
       {
         "Asset",
         "Assets" -> {
-          
+          {"Assets", "InterpreterExtension.js"},
+          {"Assets", "ServerAPI.js"}
         }
       }
     }
