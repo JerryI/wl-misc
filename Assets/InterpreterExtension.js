@@ -103,12 +103,12 @@ core.Offload = (args, env) => {
       //alternative path - checking options
       //do it in ugly superfast way
       if (args[1][1] === "'Static'") {
-          if (agrs[1][2]) {
+          if (args[1][2]) {
               return interpretate(args[0], {...env, static: true});
           }
       } else if (args.length > 2) {
           if (args[2][1] === "'Static'") {
-              if (agrs[2][2]) {
+              if (args[2][2]) {
                   return interpretate(args[0], {...env, static: true});
               }                
           }
@@ -125,13 +125,13 @@ core.Offload.update = (args, env) => {
 
       //Volitile -> False -> Reject updates
       if (args[1][1] === "'Volatile'") {
-          if (!agrs[1][2]) {
+          if (!args[1][2]) {
               console.log('Update was rejected (Nonvolatile)');
               return;
           }
       } else if (args.length > 2) {
           if (args[2][1] === "'Volatile'") {
-              if (!agrs[2][2]) {
+              if (!args[2][2]) {
                   console.log('Update was rejected (Nonvolatile)');
                   return;
               }                
