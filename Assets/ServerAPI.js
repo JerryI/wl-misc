@@ -64,6 +64,14 @@ window.Server = class {
     
   }
 
+  dispose() {
+    //
+    console.warn('Disposing all tracked symbols');
+    Object.keys(this.trackedSymbols).forEach((sym) => {
+      delete core[sym];
+    });
+  }
+
   //evaluate something on the master kernel and make a promise for the reply
   ask(expr) {
     const uid = uuidv4();
