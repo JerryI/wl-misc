@@ -142,6 +142,17 @@ core.Offload.update = (args, env) => {
   return interpretate(args[0], env);
 }
 
+//a default fallback!!!
+core.FrontEndVirtual = async (args, env) => {
+  const copy = {...env};
+  const store = args[0];
+  const instance = new ExecutableObject('fevirtual-fallback-'+uuidv4(), copy, store);
+  instance.assignScope(copy);
+
+
+  return await instance.execute();
+}
+
 core.Offload.destroy = (args, env) => {
   return interpretate(args[0], env);
 }
