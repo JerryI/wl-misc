@@ -109,7 +109,9 @@ ScriptTemplate[port_, initCode_] :=
 
             socket.onclose = function(event) {
               console.log(event);
-              alert('Connection lost. Please, update the page to see new changes.');
+              tryreload(() => {
+                alert('Connection lost. Please, update the page to see new changes.')
+              });
             }; 
 
             
@@ -139,7 +141,9 @@ ScriptTemplate[port_, host_, initCode_] :=
 
             socket.onclose = function(event) {
               console.log(event);
-              alert('Connection lost. Please, update the page to see new changes.');
+              tryreload(() => {
+                alert('Connection lost. Please, update the page to see new changes.')
+              });
             }; 
 
             
