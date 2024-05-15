@@ -193,6 +193,35 @@ core.WLXEmbed = async (args, env) => {
 }   
 
 core.WLXEmbed.destroy = async (args, env) => {
-await core._getRules(args, {...env});
-await interpretate(args[0], env);
+  await core._getRules(args, {...env});
+  await interpretate(args[0], env);
+}
+
+const tryreload = (failed) => {
+  /*var state = history.state || {};
+  var reloadCount = state.reloadCount || 0;
+  if (performance.navigation.type === 1) { // Reload
+      state.reloadCount = ++reloadCount;
+      history.replaceState(state, null, document.URL);
+  } else if (reloadCount) {
+      reloadCount = 0;
+      delete state.reloadCount;
+      history.replaceState(state, null, document.URL);
+  }
+
+
+  if (reloadCount > 3) {
+      reloadCount = 0;
+      delete state.reloadCount;
+      history.replaceState(state, null, document.URL);
+      failed();
+      return;
+  }*/
+
+  document.body.style.filter = "blur(10px)";
+
+  setTimeout(() => {
+    window.location.reload();
+  }, 3000);
+
 }
