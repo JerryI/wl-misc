@@ -197,7 +197,10 @@ core.WLXEmbed.destroy = async (args, env) => {
   await interpretate(args[0], env);
 }
 
-const tryreload = (failed) => {
+let tryreload;
+let attempts = 0;
+
+tryreload = (failed) => {
   /*var state = history.state || {};
   var reloadCount = state.reloadCount || 0;
   if (performance.navigation.type === 1) { // Reload
@@ -219,9 +222,30 @@ const tryreload = (failed) => {
   }*/
 
   document.body.style.filter = "blur(10px)";
+  attempts++;
+
+  if (attempts > 5) {
+    failed();
+    return;
+  }
+
+  console.warn('Checking connection...');
 
   setTimeout(() => {
-    window.location.reload();
+    fetch('http://'+window.location.host+'/ping').then((res)=>{
+      if (res.status === 200) {
+        console.warn('Reloading...');
+        window.location.reload();
+      } else {
+        console.warn('Checking connection... FAILED');
+        setTimeout(() => tryreload(failed), 500);
+      }
+    }, (rej)=>{
+      console.warn('Checking connection... FAILED');
+      setTimeout(() => tryreload(failed), 500);
+    });
+
+    
   }, 3000);
 
 }
