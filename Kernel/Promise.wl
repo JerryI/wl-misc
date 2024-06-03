@@ -52,14 +52,14 @@ Then[_, resolve_] := Then[Null, resolve, Null]
 
 Then[p_Promise, resolve_] := Then[p, resolve, Null]
 Then[p_Promise, resolve_, reject_] := With[{},
-    Echo["Subscribe!"];
+ 
     If[!ResolvedQ[p],
         EventHandler[p, {
             Resolve -> resolve,
             Reject  -> reject
         }]
     ,
-        Echo["Promise >> already resolved!"];
+       
         With[{result = resolved[p // First], u = p // First},
             resolved[u] = .;
             resolve[result]
