@@ -18,14 +18,14 @@ window.server = undefined;
 
 interpretate.anonymous = async (d, org) => {
   //TODO Check if it set delayed or set... if set, then one need only to cache it
-  console.warn('Anonimous symbol: ' + JSON.stringify(d));  
+  console.log('Anonimous symbol: ' + JSON.stringify(d));  
 
   let name;
   //check it is a plain symbol
   if (d instanceof Array) {
-    console.error('stack call: ');
-    console.error(jsonStringifyRecursive(org.global.stack));
-    throw('downvalues/subvalues are not supported in general. Error at '+d[0]);
+    //console.error('stack call: ');
+    //console.error(jsonStringifyRecursive(org.global.stack));
+    throw('unknown WL expression. Error at '+d[0]);
   } else {
     name = d;   //symbol
   }
@@ -52,8 +52,8 @@ interpretate.anonymous = async (d, org) => {
     console.log('checking... '+name);
     console.log('recived data..');
     console.log(jsonStringifyRecursive(data));
-    console.error('stack call: ');
-    console.error(jsonStringifyRecursive(org.global.stack));
+    //console.error('stack call: ');
+    //console.error(jsonStringifyRecursive(org.global.stack));
     throw('received symbol '+data+' is not defined in any contextes and packing'); 
   }
 
@@ -72,7 +72,7 @@ interpretate.anonymous = async (d, org) => {
 
   core[name].update = async (args, env) => {
     //evaluate in the context
-    console.log('IE: update was called...');
+    //console.log('IE: update was called...');
  
     const data = await interpretate(core[name].data, env);
     //if (env.hold) return ['JSObject', data];
@@ -124,6 +124,8 @@ core.Offload.update = (args, env) => {
       //do it in ugly superfast way
 
       //Volitile -> False -> Reject updates
+
+      //low-level optimizations, we dont' need to spend time on parsing options
       if (args[1][1] === "'Volatile'") {
           if (!args[1][2]) {
               console.log('Update was rejected (Nonvolatile)');
