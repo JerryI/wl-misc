@@ -34,8 +34,19 @@ interpretate.anonymous = async (d, org) => {
   let packed = false;
 
   //request it from the server
-  console.warn('sending request to a server... for'+name);
-  data = await server.kernel.getSymbol(name); //get the data
+  console.log('sending request to a server... for'+name);
+  if (!server || !server?.kernel) {
+    console.log('no evaluation kernel available, trying master...');
+    data = await server.getSymbol(name); //get the data
+  } else {
+    if (!server.kernel.connected) {
+      console.log('no evaluation connected kernel available, trying master...');
+      data = await server.getSymbol(name); //get the data
+    } else {
+      console.log('fetching from evaluation kernel');
+      data = await server.kernel.getSymbol(name); //get the data
+    }
+  }
   console.log('got');
   //console.log(data);
   
