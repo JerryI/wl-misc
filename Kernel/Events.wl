@@ -133,34 +133,29 @@ EventClone[assocId_String] := (
 EventClone[EventObject[assoc_]] := EventObject[Join[assoc, EventClone[assoc["Id"] ][[1]] ] ]
 
 EventJoin[seq__] := With[{list = List[seq], joined = CreateUUID[]},
-Module[{handler, data = <||>},
-    With[{},
+Module[{data = <||>},
+    With[{cloned = #},
         Switch[Head[#],
             String,
             Null;
         ,   
             EventObject,
-            If[KeyExistsQ[#[[1]], "Initial"], 
+            If[KeyExistsQ[cloned[[1]], "Initial"], With[{},
                 (* check if types convertion is needed *)
                 (* associations will be merged together *)
-                (* the rest will be stored as id=value pair *)
-                If[!AssociationQ[#[[1]]["Initial"]], data[#[[1]]["Id"]] = #[[1]]["Initial"], data = Join[data, #[[1]]["Initial"]]];
-            ];
+  
+                If[AssociationQ[cloned[[1]]["Initial"] ], data = Join[data, cloned[[1]]["Initial"] ] ];
+            ] ];
         ];
         
-        With[{cloned = EventClone[#]},
+        With[{},
             EventHandler[cloned, {any_ :> Function[d,
-                handler[cloned[[1]]["Id"], any, d];
+                EventFire[joined, any, d]
             ]} ];
         ];
     ]&/@list;
 
-    handler = Function[{id, topic, d},
-        If[AssociationQ[d], data = Join[data, d], data = Join[data, <|id -> d|>] ];
-        EventFire[joined, topic, data]
-    ];
-
-    EventObject[<|"Id" -> joined, "Initial" -> data, "storage" -> Hold[data], "handler" -> Hold[handler]|>]
+    EventObject[<|"Id" -> joined, "Initial" -> data, "storage" -> Hold[data]|>]
 ] ] 
 
 EventObject /: Join[evs__EventObject] := EventJoin[evs]
