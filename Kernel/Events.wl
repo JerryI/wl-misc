@@ -38,6 +38,8 @@ EventPacket::usage = "just handy wrapper"
 
 Begin["`Private`"]; 
 
+EventObject[] := EventObject[<|"Id" -> CreateUUID[]|>]
+
 (* old alias *)
 EventBind[any_, handler_Function] := EventHandler[any, handler]
 
@@ -76,14 +78,12 @@ EventFire[EventObject[a_Association] ] := With[{uid = a["Id"]},
     EventObject[a]
 ]
 
-EventFire[EventObject[a_Association], part_, data_] := With[{uid = a["Id"]}, 
-    If[KeyExistsQ[a, "Initial"],
-        EventFire[ uid, part, a["Initial"] ]
-    ,
-        EventFire[ uid, part, Null ]
-    ];
+EventFire[EventObject[a_Association], data_] := With[{uid = a["Id"]}, 
+    EventFire[ uid, data ]
+]
 
-    EventObject[a]
+EventFire[EventObject[a_Association], part_, data_] := With[{uid = a["Id"]}, 
+    EventFire[ uid, part, data]
 ]
 
 EventFire[uid_String, part_, data_] := EventFire[EventHandlers[uid], part, data]
@@ -149,15 +149,15 @@ Module[{handler, data = <||>},
         ];
         
         With[{cloned = EventClone[#]},
-            EventHandler[cloned, Function[d,
-                handler[cloned[[1]]["Id"], d];
-            ]];
+            EventHandler[cloned, {any_ :> Function[d,
+                handler[cloned[[1]]["Id"], any, d];
+            ]} ];
         ];
     ]&/@list;
 
-    handler = Function[{id, d},
+    handler = Function[{id, topic, d},
         If[AssociationQ[d], data = Join[data, d], data = Join[data, <|id -> d|>] ];
-        EventFire[joined, data]
+        EventFire[joined, topic, data]
     ];
 
     EventObject[<|"Id" -> joined, "Initial" -> data, "storage" -> Hold[data], "handler" -> Hold[handler]|>]
