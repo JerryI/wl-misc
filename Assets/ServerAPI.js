@@ -232,7 +232,7 @@ tryreload = (failed) => {
   console.warn('Checking connection...');
 
   setTimeout(() => {
-    fetch('http://'+window.location.host+'/ping').then((res)=>{
+    fetch(window.location.protocol+'//'+window.location.host+'/ping').then((res)=>{
       if (res.status === 200) {
         console.warn('Reloading...');
         window.location.reload();
