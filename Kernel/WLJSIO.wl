@@ -90,7 +90,7 @@ ScriptTemplate[port_, initCode_] :=
     StringTemplate["
         <script type=\"module\">
             ``
-            var socket = new WebSocket(\"ws://\"+window.location.hostname+':'+``);
+            var socket = new WebSocket((window.location.protocol == \"https:\" ? \"wss://\" : \"ws://\")+window.location.hostname+':'+``);
             window.server = new Server('Master Kernel');
 
             socket.onopen = function(e) {
@@ -122,7 +122,7 @@ ScriptTemplate[port_, host_, initCode_] :=
     StringTemplate["
         <script type=\"module\">
             ``
-            var socket = new WebSocket(\"ws://\"+'``'+':'+``);
+            var socket = new WebSocket((window.location.protocol == \"https:\" ? \"wss://\" : \"ws://\")+'``'+':'+``);
             window.server = new Server('Master Kernel');
 
             socket.onopen = function(e) {
