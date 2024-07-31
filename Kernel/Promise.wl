@@ -11,7 +11,7 @@ Then::usage = ""
 Begin["`Private`"]
 
 resolved = <||>;
-earlyBird[uid_][data_] := (resolved[uid] = data);
+earlyBird[uid_, resolveqq_][data_] := (resolved[uid] = <|"Data"->data, "Type"->resolveqq|>);
 ResolvedQ[Promise[uid_] ] := KeyExistsQ[resolved, uid]
 
 Promise /: WaitAll[ Promise[uid_] ] := Module[{timeout = 500},
@@ -21,7 +21,7 @@ Promise /: WaitAll[ Promise[uid_] ] := Module[{timeout = 500},
         Pause[0.01];
     ];
     If[timeout > 0,
-        resolved[uid]
+        resolved[uid]["Data"]
     ,
         Echo[">> Promise >> Timeout!"];
         $Failed
@@ -30,7 +30,8 @@ Promise /: WaitAll[ Promise[uid_] ] := Module[{timeout = 500},
 
 Promise[] := With[{uid = CreateUUID[]}, 
     EventHandler[uid, {
-        Resolve -> earlyBird[uid]
+        Resolve -> earlyBird[uid, True],
+        Reject  -> earlyBird[uid, False]
     }];
 
     Promise[uid] 
@@ -62,7 +63,12 @@ Then[p_Promise, resolve_, reject_] := With[{},
        
         With[{result = resolved[p // First], u = p // First},
             resolved[u] = .;
-            resolve[result]
+            If[result["Type"],
+                resolve[result["Data"] ]
+            ,
+                reject[ result["Data"] ]
+            ]
+            
         ]
     ]
 ]
