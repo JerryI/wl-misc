@@ -53,7 +53,7 @@ WLJSAliveQ[uid_String] := (
     ]
 )
 
-WLJSTransportScript[OptionsPattern[]] := If[NumberQ[OptionValue["Port"]],
+WLJSTransportScript[OptionsPattern[] ] := If[NumberQ[OptionValue["Port"] ],
     Switch[{OptionValue["TwoKernels"], OptionValue["Event"], OptionValue["Host"]},
         {False, Null, Null},
         ScriptTemplate[OptionValue["Port"], "server.init({socket: socket})"]
@@ -90,7 +90,9 @@ ScriptTemplate[port_, initCode_] :=
     StringTemplate["
         <script type=\"module\">
             ``
-            var socket = new WebSocket((window.location.protocol == \"https:\" ? \"wss://\" : \"ws://\")+window.location.hostname+':'+``);
+            ;
+            const wport = ``;
+            var socket = new WebSocket((window.location.protocol == \"https:\" ? \"wss://\" : \"ws://\")+window.location.hostname+':'+wport);
             window.server = new Server('Master Kernel');
 
             socket.onopen = function(e) {
@@ -109,6 +111,7 @@ ScriptTemplate[port_, initCode_] :=
 
             socket.onclose = function(event) {
               console.log(event);
+              if (wport == 0) return;
               tryreload(() => {
                 alert('Connection lost. Please, update the page to see new changes.')
               });
@@ -122,7 +125,9 @@ ScriptTemplate[port_, host_, initCode_] :=
     StringTemplate["
         <script type=\"module\">
             ``
-            var socket = new WebSocket((window.location.protocol == \"https:\" ? \"wss://\" : \"ws://\")+'``'+':'+``);
+            ;
+            const wport = ``;
+            var socket = new WebSocket((window.location.protocol == \"https:\" ? \"wss://\" : \"ws://\")+'``'+':'+wport);
             window.server = new Server('Master Kernel');
 
             socket.onopen = function(e) {
@@ -141,6 +146,7 @@ ScriptTemplate[port_, host_, initCode_] :=
 
             socket.onclose = function(event) {
               console.log(event);
+              if (wport == 0) return;
               tryreload(() => {
                 alert('Connection lost. Please, update the page to see new changes.')
               });
@@ -148,7 +154,7 @@ ScriptTemplate[port_, host_, initCode_] :=
 
             
         </script>
-    "][commonScript, host, port, initCode]    
+    "][commonScript, port, host, initCode]    
 
 
 End[];
