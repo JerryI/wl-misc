@@ -84,7 +84,18 @@ interpretate.anonymous = async (d, org) => {
   core[name].update = async (args, env) => {
     //evaluate in the context
     //console.log('IE: update was called...');
- 
+
+    //cache good for numerics
+    if (env.useCache) {
+      if (!core[name].cached || core[name].currentData != core[name].data) {
+        core[name].cached = await interpretate(core[name].data, env);
+        core[name].currentData = core[name].data; //just copy the reference
+        //console.log('cache miss');
+      } 
+
+      return core[name].cached;
+    }
+
     const data = await interpretate(core[name].data, env);
     //if (env.hold) return ['JSObject', data];
     return data;
