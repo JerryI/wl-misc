@@ -118,7 +118,7 @@ window.Server = class {
   }
 }
 
-core.WLJSIOUpdateSymbol = (args, env) => {
+core.WLJSIOUpdateSymbol = async (args, env) => {
   const name = interpretate(args[0], env);
   //console.log("update");
   //update
@@ -128,7 +128,7 @@ core.WLJSIOUpdateSymbol = (args, env) => {
   //console.log(core[name].instances);
 
   for (const inst of Object.values(core[name].instances)) {
-      inst.update();
+      await inst.update();
   };
 }
 
