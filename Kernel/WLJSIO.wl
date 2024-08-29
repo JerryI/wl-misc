@@ -18,7 +18,7 @@ WLJSTransportHandler[cl_, data_ByteArray] := Block[{Global`$Client = cl},
 
 WLJSTransportSend[expr_, client_] := WebSocketSend[client, expr // $DefaultSerializer]
 
-$DefaultSerializer = ExportByteArray[#, "ExpressionJSON"]&
+$DefaultSerializer = ExportByteArray[#, "ExpressionJSON", Compact->0]&
 
 Global`WLJSIOAddTracking[symbol_] := With[{cli = Global`$Client, name = SymbolName[Unevaluated[symbol]]},
     WLJSTransportHandler["AddTracking"][symbol, name, cli, Function[{client, value},
