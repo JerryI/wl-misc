@@ -30,7 +30,7 @@ window.Server = class {
 
   kernel;
 
-  onMessage = (event) => {
+  onMessage(event) {
     const uid = Math.floor(Math.random() * 100);
     const global = {call: uid};
     interpretate(JSON.parse(event.data), {global: global});
