@@ -30,6 +30,12 @@ window.Server = class {
 
   kernel;
 
+  onMessage = (event) => {
+    const uid = Math.floor(Math.random() * 100);
+    const global = {call: uid};
+    interpretate(JSON.parse(event.data), {global: global});
+  }
+  
   constructor(name = "Unknown") {
     console.warn('Server was constructed with name '+name);
     this.name = name;
