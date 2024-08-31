@@ -10,6 +10,16 @@ Offload::usage = "Hold expression to be evaluated on a frontend"
 
 Begin["`Private`"]
 
+
+System`WLJSIOUpdateSymbol;
+System`WLJSIOAddTracking;
+System`WLJSIOGetSymbol;
+System`WLJSIOPromise;
+System`WLJSIOPromiseResolve;
+System`WLJSIDCardRegister;
+
+System`SlientPing;
+
 SetAttributes[Offload, HoldFirst]
 
 WLJSTransportHandler[cl_, data_ByteArray] := Block[{Global`$Client = cl},
@@ -20,31 +30,31 @@ WLJSTransportSend[expr_, client_] := WebSocketSend[client, expr // $DefaultSeria
 
 $DefaultSerializer = ExportByteArray[#, "ExpressionJSON", Compact->0]&
 
-Global`WLJSIOAddTracking[symbol_] := With[{cli = Global`$Client, name = SymbolName[Unevaluated[symbol]]},
+WLJSIOAddTracking[symbol_] := With[{cli = Global`$Client, name = SymbolName[Unevaluated[symbol]]},
     WLJSTransportHandler["AddTracking"][symbol, name, cli, Function[{client, value},
-        WebSocketSend[client, Global`WLJSIOUpdateSymbol[name, value] // $DefaultSerializer]
+        WebSocketSend[client, WLJSIOUpdateSymbol[name, value] // $DefaultSerializer]
     ]]
 ]
 
-SetAttributes[Global`WLJSIOAddTracking, HoldFirst]
+SetAttributes[WLJSIOAddTracking, HoldFirst]
 
-Global`WLJSIOGetSymbol[uid_, params_][expr_] := With[{client = Global`$Client},
+WLJSIOGetSymbol[uid_, params_][expr_] := With[{client = Global`$Client},
     WLJSTransportHandler["GetSymbol"][expr, client, Function[result,
-        WebSocketSend[client, Global`WLJSIOPromiseResolve[uid, result] // $DefaultSerializer] 
+        WebSocketSend[client, WLJSIOPromiseResolve[uid, result] // $DefaultSerializer] 
     ]]
 ];
 
-Global`WLJSIOPromise[uid_, params_][expr_] := With[{client = Global`$Client},
+WLJSIOPromise[uid_, params_][expr_] := With[{client = Global`$Client},
     (*Print["WLJS promise >> get with id "<>uid];*)
-    WebSocketSend[client, Global`WLJSIOPromiseResolve[uid, expr] // $DefaultSerializer];
+    WebSocketSend[client, WLJSIOPromiseResolve[uid, expr] // $DefaultSerializer];
 ];
 
 IDCards = <||>;
-Global`WLJSIDCardRegister[uid_String] := (Print["Transport registered as "<>uid]; IDCards[uid] = Global`$Client)
+WLJSIDCardRegister[uid_String] := (Print["Transport registered as "<>uid]; IDCards[uid] = Global`$Client)
 
 WLJSAliveQ[uid_String] := (
     If[KeyExistsQ[IDCards, uid],
-        With[{res = !FailureQ[WebSocketSend[IDCards[uid], Global`SlientPing // $DefaultSerializer]]},
+        With[{res = !FailureQ[WebSocketSend[IDCards[uid], SlientPing // $DefaultSerializer]]},
             If[!res, IDCards[uid] = .];
             res
         ]
