@@ -7,7 +7,7 @@ PacletObject[
     "Creator" -> "Kirill Vasin",
     "License" -> "MIT",
     "PublisherID" -> "JerryI",
-    "Version" -> "0.4.0",
+    "Version" -> "0.4.1",
     "WolframVersion" -> "5+",
     "PrimaryContext" -> "JerryI`Misc`",
     "Extensions" -> {
