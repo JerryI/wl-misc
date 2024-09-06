@@ -10,15 +10,17 @@ Then::usage = ""
 
 Begin["`Private`"]
 
+$PromiseTimeout = 500;
+
 resolved = <||>;
 earlyBird[uid_, resolveqq_][data_] := (resolved[uid] = <|"Data"->data, "Type"->resolveqq|>);
 ResolvedQ[Promise[uid_] ] := KeyExistsQ[resolved, uid]
 
-Promise /: WaitAll[ Promise[uid_] ] := Module[{timeout = 500},
+Promise /: WaitAll[ Promise[uid_] ] := Module[{timeout = $PromiseTimeout},
     (*Echo[">> Waiting for promise to be resolved ... "];*)
     While[!KeyExistsQ[resolved, uid] && timeout > 0,
         timeout--;
-        Pause[0.01];
+        Pause[0.03];
     ];
     If[timeout > 0,
         resolved[uid]["Data"]
