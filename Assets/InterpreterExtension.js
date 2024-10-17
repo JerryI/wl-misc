@@ -69,6 +69,11 @@ interpretate.anonymous = async (d, org) => {
   }
 
   //if it is OK
+  if (name in core) {
+    //already requested
+    console.log('it was already requested');
+    return interpretate(d, org);
+  }
 
   core[name] = async (args, env) => {
     console.log('IE: calling our symbol...');
