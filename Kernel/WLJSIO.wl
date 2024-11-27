@@ -17,6 +17,7 @@ System`WLJSIOGetSymbol;
 System`WLJSIOPromise;
 System`WLJSIOPromiseResolve;
 System`WLJSIDCardRegister;
+System`WLJSIOPromiseCallback;
 
 System`SlientPing;
 
