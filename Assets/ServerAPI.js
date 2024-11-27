@@ -79,14 +79,20 @@ window.Server = class {
   }
 
   //evaluate something on the master kernel and make a promise for the reply
-  ask(expr) {
+  ask(expr, mode = undefined) {
     const uid = uuidv4();
 
     const promise = new Deferred();
     promises[uid] = promise;
     console.log('Asking expr');
     console.log(expr);
-    this.socket.send('WLJSIOPromise["'+uid+'", ""]['+expr+']');
+
+    if (mode == 'callback') {
+      this.socket.send('WLJSIOPromiseCallback["'+uid+'", ""]['+expr+']');
+    } else {
+      this.socket.send('WLJSIOPromise["'+uid+'", ""]['+expr+']');
+    }
+    
 
     return promise.promise 
   };

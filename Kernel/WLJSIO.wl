@@ -49,6 +49,13 @@ WLJSIOPromise[uid_, params_][expr_] := With[{client = Global`$Client},
     WebSocketSend[client, WLJSIOPromiseResolve[uid, expr] // $DefaultSerializer];
 ];
 
+WLJSIOPromiseCallback[uid_, params_][expr_] := With[{client = Global`$Client},
+    (*Print["WLJS promise >> get with id "<>uid];*)
+    expr[Function[result, 
+        WebSocketSend[client, WLJSIOPromiseResolve[uid, result] // $DefaultSerializer];
+    ]];
+];
+
 IDCards = <||>;
 WLJSIDCardRegister[uid_String] := (Print["Transport registered as "<>uid]; IDCards[uid] = Global`$Client)
 
