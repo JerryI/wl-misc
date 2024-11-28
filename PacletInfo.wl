@@ -16,7 +16,7 @@ PacletObject[
         "Root" -> "Kernel",
         "Context" -> {
           {"JerryI`Misc`Events`", "Events.wl"}, 
-          {"JerryI`Misc`Events`Parallel`", "Parallel.wl"}, 
+          {"JerryI`Misc`Parallel`", "Parallel.wl"}, 
           {"JerryI`Misc`Events`Promise`", "Promise.wl"},
           {"JerryI`Misc`WLJS`Transport`", "WLJSIO.wl"}, 
           {"JerryI`Misc`Async`", "Async.wl"}, 
