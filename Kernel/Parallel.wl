@@ -1,9 +1,10 @@
 BeginPackage["JerryI`Misc`Parallel`", {
     "JerryI`Misc`Async`",
     "JerryI`Misc`Events`",
-    "JerryI`Misc`Events`Promise`",
-    "Parallel`Developer`"
+    "JerryI`Misc`Events`Promise`"
 }]; 
+
+Needs["Parallel`Developer`" -> None];
 
 ParallelSubmitAsync::usage = "ParallelSubmitAsync[expr_] _Promise executes expr on a parallel kernel"
 ParallelSubmitFunctionAsync::usage = "ParallelSubmitFunctionAsync[func_, args__] _Promise executes func[args, cbk], where cbk can be called by task on parallel kernel"
@@ -16,7 +17,7 @@ $timer = False;
 
 checkQ := If[$timer == False, $timer = SetInterval[checkState, $TimeInterval]];
 
-checkState := If[!QueueRun[] && Length[que//Keys] == 0, 
+checkState := If[!Parallel`Developer`QueueRun[] && Length[que//Keys] == 0, 
   CancelInterval[$timer];
   $timer = False;
 ];
