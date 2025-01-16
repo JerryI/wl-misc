@@ -32,7 +32,7 @@ ClearAll[EventHandler]
 EventHandler::usage = "EventHandler[ev_String | _EventObject, {handlers___Rule | handlers___RuleDelayed}] ev_ binds an event object represented as a string or EventObject or anything compatible with this type to a single or multiple handling functions (multiple - only if patterns do not intersect). Returns an original event-object ev"
 
 
-EventListener::usage = "internal command"
+EventListener::usage = "Listener Object"
 
 EventPacket::usage = "just handy wrapper"
 
@@ -42,6 +42,17 @@ EventObject[] := EventObject[<|"Id" -> CreateUUID[]|>]
 
 (* old alias *)
 EventBind[any_, handler_Function] := EventHandler[any, handler]
+
+
+listener[p_, list_] := With[{uid = CreateUUID[]}, With[{
+    rules = Map[Function[rule, rule[[1]] -> uid ], list]
+},
+    EventHandler[uid, list];
+    EventListener[p, rules]
+] ]
+
+EventHandler[Null, p_List] := listener[Null, p]
+
 
 EventHandler[EventObject[a_Association], f_] := With[{},
     EventHandler[a["Id"], f];
