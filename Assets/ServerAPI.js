@@ -40,6 +40,8 @@ window.Server = class {
     console.warn('Server was constructed with name '+name);
     this.name = name;
     this.kernel = this;
+
+    this.self = this;
   }
 
   init(opts) {
