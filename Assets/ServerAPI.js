@@ -20,6 +20,23 @@ constructor() {
 
 const promises = {}
 
+class ServerIO {
+  format = "ExpressionJSON";
+
+  constructor(server, opts = {}) {
+    this.server = server;
+  }
+
+  fire(uid, object, pattern = "Default") {
+    const data = encodeURIComponent(JSON.stringify(object));
+    this.server.socket.send('EventFire["'+uid+'", "'+pattern+'", ImportString[URLDecode["'+data+'"], "RawJSON"]]');
+  }
+
+  dispose() {
+
+  }
+}
+
 //Server API
 window.Server = class {
  
@@ -27,6 +44,7 @@ window.Server = class {
 
   trackedSymbols = {};
   name = 'Unknown';
+  event;
 
   kernel;
 
@@ -42,6 +60,8 @@ window.Server = class {
     this.kernel = this;
 
     this.self = this;
+
+    this.io = new ServerIO(this);
   }
 
   init(opts) {
@@ -78,10 +98,14 @@ window.Server = class {
     Object.keys(this.trackedSymbols).forEach((sym) => {
       delete core[sym];
     });
+
+    if (this.io) {
+      this.io.dispose();
+    }
   }
 
   //evaluate something on the master kernel and make a promise for the reply
-  ask(expr, mode = undefined) {
+  ask(expr, mode = undefined) { // DEPRICATED!!! needs to keep to support legacy code
     const uid = uuidv4();
 
     const promise = new Deferred();
@@ -99,17 +123,17 @@ window.Server = class {
     return promise.promise 
   };
   //fire event on the secondary kernel (your working area) (no reply)
-  emitt(uid, data, type = 'Default') {
+  emitt(uid, data, type = 'Default') { // DEPRICATED!!! needs to keep to support legacy code
     this.socket.send('EventFire["'+uid+'", "'+type+'", '+data+']');
   };
 
-  _emitt(uid, data, type) {
+  _emitt(uid, data, type) { // DEPRICATED!!! needs to keep to support legacy code
     //unescaped version
     console.log({uid:uid, data:data, type:type});
     this.socket.send('EventFire["'+uid+'", '+type+', '+data+']');
   };    
 
-  send(expr) {
+  send(expr) { //// DEPRICATED!!! needs to keep to support legacy code
     this.socket.send(expr);
   };
 
