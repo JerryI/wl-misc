@@ -36,14 +36,14 @@ class ServerIO {
     this.server.socket.send('EventFire["'+uid+'", True]');
   }
 
-  request(uid, object, pattern = "Default") { //the same as event call, but returns the result
+  request(ev, object, pattern = "Default") { //the same as event call, but returns the result
     const uid = uuidv4();
 
     const promise = new Deferred();
     promises[uid] = promise;
 
     const data = encodeURIComponent(JSON.stringify(object));
-    this.server.socket.send('WLJSIORequest["'+uid+'"]["'+uid+'", "'+pattern+'", ImportString[URLDecode["'+data+'"], "RawJSON"]]');
+    this.server.socket.send('WLJSIORequest["'+uid+'"]["'+ev+'", "'+pattern+'", ImportString[URLDecode["'+data+'"], "RawJSON"]]');
 
     return promise.promise     
   }
