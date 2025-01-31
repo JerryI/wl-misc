@@ -54,7 +54,7 @@ class ServerIO {
     const promise = new Deferred();
     promises[uid] = promise;
 
-    this.socket.send('WLJSIOFetch["'+uid+'"]['+symbol+']');
+    this.server.socket.send('WLJSIOFetch["'+uid+'"]['+symbol+']');
     
     return promise.promise     
   }
