@@ -1,4 +1,8 @@
-BeginPackage["JerryI`Misc`WLJS`Transport`", {"KirillBelov`WebSocketHandler`"}]; 
+BeginPackage["JerryI`Misc`WLJS`Transport`", {
+    "KirillBelov`WebSocketHandler`",
+    "JerryI`Misc`Events`Promise`",
+    "JerryI`Misc`Events`"
+}]; 
 
 WLJSTransportHandler::usage = ""
 WLJSTransportScript::usage = ""
@@ -18,6 +22,9 @@ System`WLJSIOPromise;
 System`WLJSIOPromiseResolve;
 System`WLJSIDCardRegister;
 System`WLJSIOPromiseCallback;
+
+System`WLJSIORequest;
+System`WLJSIOFetch;
 
 System`SlientPing;
 
@@ -48,6 +55,28 @@ WLJSIOGetSymbol[uid_, params_][expr_] := With[{client = Global`$Client},
 WLJSIOPromise[uid_, params_][expr_] := With[{client = Global`$Client},
     (*Print["WLJS promise >> get with id "<>uid];*)
     WebSocketSend[client, WLJSIOPromiseResolve[uid, expr] // $DefaultSerializer];
+];
+
+WLJSIOFetch[uid_][symbol_] := With[{client = Global`$Client},
+    (*Print["WLJS promise >> get with id "<>uid];*)
+    If[PromiseQ[symbol],
+        Then[symbol, Function[res,
+            WebSocketSend[client, WLJSIOPromiseResolve[uid, res] // $DefaultSerializer];
+        ] ];
+    ,
+        WebSocketSend[client, WLJSIOPromiseResolve[uid, symbol] // $DefaultSerializer];
+    ]
+];
+
+WLJSIORequest[uid_][ev_String, pattern_, data_] := With[{client = Global`$Client, res = EventFire[ev, pattern, data]},
+    (*Print["WLJS promise >> get with id "<>uid];*)
+    If[PromiseQ[res],
+        Then[symbol, Function[res,
+            WebSocketSend[client, WLJSIOPromiseResolve[uid, res] // $DefaultSerializer];
+        ] ];
+    ,
+        WebSocketSend[client, WLJSIOPromiseResolve[uid, symbol] // $DefaultSerializer];
+    ]
 ];
 
 WLJSIOPromiseCallback[uid_, params_][expr_] := With[{client = Global`$Client},

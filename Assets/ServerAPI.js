@@ -27,9 +27,36 @@ class ServerIO {
     this.server = server;
   }
 
-  fire(uid, object, pattern = "Default") {
+  fire(uid, object, pattern = "Default") { //regular event call
     const data = encodeURIComponent(JSON.stringify(object));
     this.server.socket.send('EventFire["'+uid+'", "'+pattern+'", ImportString[URLDecode["'+data+'"], "RawJSON"]]');
+  }
+
+  poke(uid) { //superfast just send a dummy message (can be used for calling animation frame)
+    this.server.socket.send('EventFire["'+uid+'", True]');
+  }
+
+  request(uid, object, pattern = "Default") { //the same as event call, but returns the result
+    const uid = uuidv4();
+
+    const promise = new Deferred();
+    promises[uid] = promise;
+
+    const data = encodeURIComponent(JSON.stringify(object));
+    this.server.socket.send('WLJSIORequest["'+uid+'"]["'+uid+'", "'+pattern+'", ImportString[URLDecode["'+data+'"], "RawJSON"]]');
+
+    return promise.promise     
+  }
+
+  fetch(symbol) { //fetch any symbol value
+    const uid = uuidv4();
+
+    const promise = new Deferred();
+    promises[uid] = promise;
+
+    this.socket.send('WLJSIOFetch["'+uid+'"]['+symbol+']');
+    
+    return promise.promise     
   }
 
   dispose() {
@@ -105,7 +132,7 @@ window.Server = class {
   }
 
   //evaluate something on the master kernel and make a promise for the reply
-  ask(expr, mode = undefined) { // DEPRICATED!!! needs to keep to support legacy code
+  ask(expr, mode = undefined) { // DEPRICATED!!! needs to keep to support legacy code (NOT SECURE)
     const uid = uuidv4();
 
     const promise = new Deferred();
@@ -123,17 +150,17 @@ window.Server = class {
     return promise.promise 
   };
   //fire event on the secondary kernel (your working area) (no reply)
-  emitt(uid, data, type = 'Default') { // DEPRICATED!!! needs to keep to support legacy code
+  emitt(uid, data, type = 'Default') { // DEPRICATED!!! needs to keep to support legacy code (NOT SECURE)
     this.socket.send('EventFire["'+uid+'", "'+type+'", '+data+']');
   };
 
-  _emitt(uid, data, type) { // DEPRICATED!!! needs to keep to support legacy code
+  _emitt(uid, data, type) { // DEPRICATED!!! needs to keep to support legacy code (NOT SECURE)
     //unescaped version
     console.log({uid:uid, data:data, type:type});
     this.socket.send('EventFire["'+uid+'", '+type+', '+data+']');
   };    
 
-  send(expr) { //// DEPRICATED!!! needs to keep to support legacy code
+  send(expr) { //// DEPRICATED!!! needs to keep to support legacy code (NOT SECURE)
     this.socket.send(expr);
   };
 
