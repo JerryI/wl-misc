@@ -103,28 +103,28 @@ WLJSAliveQ[uid_String] := (
 WLJSTransportScript[OptionsPattern[] ] := If[NumberQ[OptionValue["Port"] ],
     Switch[{OptionValue["TwoKernels"], OptionValue["Event"], OptionValue["Host"]},
         {False, Null, Null},
-        ScriptTemplate[OptionValue["Port"], "server.init({socket: socket})"]
+        ScriptTemplate[OptionValue["PrefixMode"], OptionValue["Port"], "server.init({socket: socket})" ]
     ,
         {True, Null, Null},
-        ScriptTemplate[OptionValue["Port"], "server.init({socket: socket, kernel: true})"]
+        ScriptTemplate[OptionValue["PrefixMode"], OptionValue["Port"], "server.init({socket: socket, kernel: true})" ]
     ,
         {False, _String, Null},
-        ScriptTemplate[OptionValue["Port"], "server.init({socket: socket}); server.emitt('"<>OptionValue["Event"]<>"', 'True', 'Connected');"]
+        ScriptTemplate[OptionValue["PrefixMode"], OptionValue["Port"], "server.init({socket: socket}); server.emitt('"<>OptionValue["Event"]<>"', 'True', 'Connected');" ]
     ,
         {True, _, Null},
-        ScriptTemplate[OptionValue["Port"], "server.init({socket: socket, kernel: true}); "]
+        ScriptTemplate[OptionValue["PrefixMode"], OptionValue["Port"], "server.init({socket: socket, kernel: true}); " ]
     ,
         {False, Null, _String},
-        ScriptTemplate[OptionValue["Port"], OptionValue["Host"], "server.init({socket: socket}); "]
+        ScriptTemplate[OptionValue["PrefixMode"], OptionValue["Port"], OptionValue["Host"], "server.init({socket: socket}); " ]
     ,
         {True, Null, _String},
-        ScriptTemplate[OptionValue["Port"], OptionValue["Host"], "server.init({socket: socket, kernel: true}); "]        
+        ScriptTemplate[OptionValue["PrefixMode"], OptionValue["Port"], OptionValue["Host"], "server.init({socket: socket, kernel: true}); " ]        
     ]
 ,
     "Specify a mode and a port!"
 ]
 
-Options[WLJSTransportScript] = {"Port"->Null, "Host"->Null, "Regime"->"Standalone", "Event"->Null, "TwoKernels" -> False}
+Options[WLJSTransportScript] = {"Port"->Null, "Host"->Null, "PrefixMode"->False, "Regime"->"Standalone", "Event"->Null, "TwoKernels" -> False}
 
 assets = $InputFileName // DirectoryName // ParentDirectory;
 
@@ -133,7 +133,8 @@ commonScript = StringRiffle[{
     Import[FileNameJoin[{assets, "Assets", "InterpreterExtension.js"}], "String"]
 }, "\n"];
 
-ScriptTemplate[port_, initCode_] := 
+
+ScriptTemplate[_, port_, initCode_] := 
     StringTemplate["
         <script type=\"module\">
             ``
@@ -168,7 +169,7 @@ ScriptTemplate[port_, initCode_] :=
         </script>
     "][commonScript, port, initCode]
 
-ScriptTemplate[port_, host_, initCode_] := 
+ScriptTemplate[_, port_, host_, initCode_] := 
     StringTemplate["
         <script type=\"module\">
             ``
@@ -202,6 +203,78 @@ ScriptTemplate[port_, host_, initCode_] :=
             
         </script>
     "][commonScript, port, host, initCode]    
+
+
+
+ScriptTemplate[prefix_String, port_, initCode_] := 
+    StringTemplate["
+        <script type=\"module\">
+            ``
+            ;
+            const wport = ``;
+            var socket = new WebSocket((window.location.protocol == \"https:\" ? \"wss://\" : \"ws://\")+window.location.hostname+'/``');
+            window.server = new Server('Master Kernel');
+
+            socket.onopen = function(e) {
+              console.log(\"[open]\");
+              
+              ``;
+            }; 
+
+            socket.onmessage = function(event) {
+              //create global context
+              //callid
+              const uid = Math.floor(Math.random() * 100);
+              var global = {call: uid};
+              interpretate(JSON.parse(event.data), {global: global});
+            };
+
+            socket.onclose = function(event) {
+              console.log(event);
+              if (wport == 0) return;
+              tryreload(() => {
+                alert('Connection lost. Please, update the page to see new changes.')
+              });
+            }; 
+
+            
+        </script>
+    "][commonScript, port, prefix, initCode]
+
+ScriptTemplate[prefix_String, port_, host_, initCode_] := 
+    StringTemplate["
+        <script type=\"module\">
+            ``
+            ;
+            const wport = ``;
+            var socket = new WebSocket((window.location.protocol == \"https:\" ? \"wss://\" : \"ws://\")+'``/``');
+            window.server = new Server('Master Kernel');
+
+            socket.onopen = function(e) {
+              console.log(\"[open]\");
+              
+              ``;
+            }; 
+
+            socket.onmessage = function(event) {
+              //create global context
+              //callid
+              const uid = Math.floor(Math.random() * 100);
+              var global = {call: uid};
+              interpretate(JSON.parse(event.data), {global: global});
+            };
+
+            socket.onclose = function(event) {
+              console.log(event);
+              if (wport == 0) return;
+              tryreload(() => {
+                alert('Connection lost. Please, update the page to see new changes.')
+              });
+            }; 
+
+            
+        </script>
+    "][commonScript, port, host, prefix, initCode]    
 
 
 End[];
