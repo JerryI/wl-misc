@@ -68,6 +68,17 @@ WLJSIOFetch[uid_][symbol_] := With[{client = Global`$Client},
     ]
 ];
 
+WLJSIOFetch[uid_][r_, args_List] := With[{client = Global`$Client, symbol = r @@ args},
+    (*Print["WLJS promise >> get with id "<>uid];*)
+    If[PromiseQ[symbol],
+        Then[symbol, Function[res,
+            WebSocketSend[client, WLJSIOPromiseResolve[uid, res] // $DefaultSerializer];
+        ] ];
+    ,
+        WebSocketSend[client, WLJSIOPromiseResolve[uid, symbol] // $DefaultSerializer];
+    ]
+];
+
 WLJSIORequest[uid_][ev_String, pattern_, data_] := With[{client = Global`$Client, res = EventFire[ev, pattern, data]},
     (*Print["WLJS promise >> get with id "<>uid];*)
     If[PromiseQ[res],
