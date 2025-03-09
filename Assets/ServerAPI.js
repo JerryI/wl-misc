@@ -48,11 +48,17 @@ class ServerIO {
     return promise.promise     
   }
 
-  fetch(symbol) { //fetch any symbol value
+  fetch(symbol, args=false) { //fetch any symbol value
     const uid = uuidv4();
 
     const promise = new Deferred();
     promises[uid] = promise;
+
+    if (args) {
+      const data = encodeURIComponent(JSON.stringify(args));
+      this.server.socket.send('WLJSIOFetch["'+uid+'"]['+symbol+', ImportString[URLDecode["'+data+'"], "RawJSON"]]');
+      return promise.promise     
+    }
 
     this.server.socket.send('WLJSIOFetch["'+uid+'"]['+symbol+']');
     
