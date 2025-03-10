@@ -22,6 +22,7 @@ const promises = {}
 
 class ServerIO {
   format = "ExpressionJSON";
+  headSymbol = "EventFire";
 
   constructor(server, opts = {}) {
     this.server = server;
@@ -29,11 +30,11 @@ class ServerIO {
 
   fire(uid, object, pattern = "Default") { //regular event call
     const data = encodeURIComponent(JSON.stringify(object));
-    this.server.socket.send('EventFire["'+uid+'", "'+pattern+'", ImportString[URLDecode["'+data+'"], "RawJSON"]]');
+    this.server.socket.send(this.headSymbol+'["'+uid+'", "'+pattern+'", ImportString[URLDecode["'+data+'"], "RawJSON"]]');
   }
 
   poke(uid) { //superfast just send a dummy message (can be used for calling animation frame)
-    this.server.socket.send('EventFire["'+uid+'", True]');
+    this.server.socket.send(this.headSymbol+'["'+uid+'", True]');
   }
 
   request(ev, object, pattern = "Default") { //the same as event call, but returns the result
