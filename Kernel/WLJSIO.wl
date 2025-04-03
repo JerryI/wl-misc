@@ -223,7 +223,7 @@ ScriptTemplate[prefix_String, port_, initCode_] :=
             ``
             ;
             const wport = ``;
-            var socket = new WebSocket((window.location.protocol == \"https:\" ? \"wss://\" : \"ws://\")+window.location.hostname+'/``');
+            var socket = new WebSocket((window.location.protocol == \"https:\" ? \"wss://\" : \"ws://\")+window.location.hostname+':'+window.location.port+'/``');
             window.server = new Server('Master Kernel');
 
             socket.onopen = function(e) {
