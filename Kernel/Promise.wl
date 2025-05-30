@@ -51,8 +51,8 @@ Promise /: EventFire[Promise[uid_], Reject, data_] := With[{},
     EventRemove[uid];
 ]
 
-Then[_, resolve_, reject_] := resolve[Null]
-Then[_, resolve_] := Then[Null, resolve, Null]
+Then[any_, resolve_, reject_] := resolve[any]
+Then[any_, resolve_] := Then[any, resolve, Null]
 
 Then[p_Promise, resolve_] := Then[p, resolve, Null]
 Then[p_Promise, resolve_, reject_] := With[{},
