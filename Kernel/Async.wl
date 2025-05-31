@@ -1,9 +1,16 @@
-BeginPackage["JerryI`Misc`Async`"]; 
+BeginPackage["JerryI`Misc`Async`", {"JerryI`Misc`Events`", "JerryI`Misc`Events`Promise`"}]; 
 
 SetTimeout::usage = "SetTimeout[expr, milliseconds_Number] async scheldued task once after period"
 SetInterval::usage = "SetInterval[expr, milliseconds_Number] async scheldued task every period"
 CancelTimeout::usage = "CancelTimeout[task] cancel the timer"
 CancelInterval::usage = "CancelInterval[task] cancel the timer"
+
+
+AsyncFunction::usage = "AsyncFunction[args, body] is a pure (or \"anonymous\") async function. Returns Promise"
+Await::usage = "Await[expr] is used in AsyncFunction to pause the execution until expr is resolved"
+
+PauseAsync::usage = "Async version of Pause[n], that returns promise"
+
 
 Looper;
 
@@ -18,6 +25,140 @@ CancelInterval[t_TaskObject] := TaskRemove[t]
 
 SetAttributes[SetTimeout, HoldFirst]
 SetAttributes[SetInterval, HoldFirst]
+
+
+asyncTransform;
+SetAttributes[asyncTransform, HoldFirst]
+
+asyncReturn;
+
+asyncTransform[a_] := a
+
+asyncTransform[CompoundExpression[b_]] := asyncTransform[b]
+
+asyncTransform[Await[a_]] := asyncReturn[a]
+
+asyncTransform[Module[vars_, body_]] := Module[vars, asyncTransform[body]]
+asyncTransform[With[vars_, body_]] := With[vars, asyncTransform[body]]
+
+asyncTransform[If[cond_, a_]] := asyncTransform[If[cond, a, Null]]
+
+asyncTransform[If[cond_, a_, b_]] := With[{condition = asyncTransform[cond]},
+  If[MatchQ[condition, _asyncReturn],
+    Module[{cp = Promise[]},
+      Then[Extract[cp, 1], Function[result,
+        EventFire[cp, Resolve, asyncTransform[If[result, a, b]]];
+      ], Function[Null,
+        EventFire[cp, Reject, $Failed];
+      ]];
+
+      asyncReturn[cp]
+    ]
+  ,
+    If[TrueQ[condition],
+      With[{ares = asyncTransform[a]},
+        If[MatchQ[ares, _asyncReturn],
+          Module[{cap = Promise[]},
+          
+            Then[Extract[ares, 1], Function[result,
+              EventFire[cap, Resolve, result];
+            ], Function[Null,
+              EventFire[cap, Reject, $Failed];
+            ]];
+            
+            asyncReturn[cap]
+          ]
+        ,
+          ares
+        ]
+      ]
+    ,
+      With[{bres = asyncTransform[b]},
+        If[MatchQ[bres, _asyncReturn],
+          Module[{cbp = Promise[]},
+          
+            Then[Extract[bres, 1], Function[result,
+              EventFire[cbp, Resolve, result];
+            ], Function[Null,
+              EventFire[cbp, Reject, $Failed];
+            ]];
+            
+            asyncReturn[cbp]
+          ]
+        ,
+          bres
+        ]
+      ]    
+    ]
+  ]
+]
+
+asyncTransform[Set[a_, b_]] := With[{res = asyncTransform[b]},
+  If[MatchQ[res, _asyncReturn],
+    Module[{p5 = Promise[]},
+      Then[Extract[res, 1], Function[resolved,
+        EventFire[p5, Resolve, Set[a, resolved] ];
+      ], Function[Null,
+        EventFire[p5, Reject, $Failed];
+      ]];
+      
+      asyncReturn[p5]
+    ]
+  ,
+    Set[a, res]
+  ]
+]
+
+asyncTransform[CompoundExpression[a_, b__]] := With[{first = asyncTransform[a]},
+  If[MatchQ[first, _asyncReturn],
+    Module[{p = Promise[]},
+      Then[Extract[first, 1], Function[Null,
+        With[{rest = asyncTransform[CompoundExpression[b]]},
+          If[MatchQ[rest, _asyncReturn],
+            Then[Extract[rest, 1], Function[result,
+              EventFire[p, Resolve, result];
+            ], Function[Null,
+              EventFire[p, Reject, $Failed];
+            ]]
+          ,
+            EventFire[p, Resolve, rest];
+          ];
+        ];
+      ], Function[Null,
+            EventFire[p, Reject, $Failed];
+      ]];
+
+      asyncReturn[p]
+    ]
+  ,
+    asyncTransform[CompoundExpression[b]]
+  ]
+]
+
+AsyncFunction[vars_, body_] := Function[vars, 
+  With[{return = asyncTransform[body]},
+    If[MatchQ[return, _asyncReturn],
+      Module[{mainPromise = Promise[]},
+        Then[Extract[return, 1], Function[result,
+          EventFire[mainPromise, Resolve, result];
+        ], Function[Null,
+          EventFire[mainPromise, Reject, $Failed];
+        ]];
+        
+        mainPromise
+      ]
+    ,
+      return
+    ]
+  ]
+]
+
+SetAttributes[AsyncFunction, HoldAll]
+
+PauseAsync[n_Real | n_Integer] := With[{p = Promise[]}, 
+    SessionSubmit[ScheduledTask[EventFire[p, Resolve, True];, {Quantity[n, "Seconds"]}] ];
+    p
+]
 
 
 (* LEGACY *)
