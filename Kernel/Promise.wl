@@ -51,6 +51,11 @@ Promise /: EventFire[Promise[uid_], Reject, data_] := With[{},
     EventRemove[uid];
 ]
 
+Then[ev_EventObject, resolve_, ___] := EventHandler[ev, Function[data, 
+    EventRemove[ev];
+    resolve[data]
+] ]
+
 Then[any_, resolve_, reject_] := resolve[any]
 Then[any_, resolve_] := Then[any, resolve, Null]
 
