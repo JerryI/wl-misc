@@ -3,12 +3,24 @@ BeginPackage["JerryI`Misc`Async`"];
 SetTimeout::usage = "SetTimeout[expr, milliseconds_Number] async scheldued task once after period"
 SetInterval::usage = "SetInterval[expr, milliseconds_Number] async scheldued task every period"
 CancelTimeout::usage = "CancelTimeout[task] cancel the timer"
-CancelInterval::usage = ""
+CancelInterval::usage = "CancelInterval[task] cancel the timer"
 
-Looper::usage = ""
+Looper;
 
 Begin["`Private`"]; 
 
+
+SetTimeout[expr_, timeout_] := obj = SessionSubmit[ScheduledTask[expr, {Quantity[timeout/1000, "Seconds"]}] ]
+CancelTimeout[t_TaskObject] := TaskRemove[t]
+
+SetInterval[expr_, timeout_] := obj = SessionSubmit[ScheduledTask[expr, Quantity[timeout/1000, "Seconds"]]]
+CancelInterval[t_TaskObject] := TaskRemove[t]
+
+SetAttributes[SetTimeout, HoldFirst]
+SetAttributes[SetInterval, HoldFirst]
+
+
+(* LEGACY *)
 
 Looper[] := While[True,
     If[!Looper`Flag, Pause[0.01] ];
@@ -34,15 +46,6 @@ Options[Looper`Submit] = {"Continuous" -> False}
 
 Looper`Tasks = <||>
 Looper`Flag = True
-
-SetTimeout[expr_, timeout_] := obj = SessionSubmit[ScheduledTask[expr, {Quantity[timeout/1000, "Seconds"]}]]
-CancelTimeout[t_TaskObject] := TaskRemove[t]
-
-SetInterval[expr_, timeout_] := obj = SessionSubmit[ScheduledTask[expr, Quantity[timeout/1000, "Seconds"]]]
-CancelInterval[t_TaskObject] := TaskRemove[t]
-
-SetAttributes[SetTimeout, HoldFirst]
-SetAttributes[SetInterval, HoldFirst]
 
 End[];
 
