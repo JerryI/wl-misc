@@ -109,8 +109,8 @@ interpretate.anonymous = async (d, org) => {
   core[name].destroy = async (args, env) => {
 
     delete core[name].instances[env.root.uid];
-    console.warn(env.root.uid + ' was destroyed')
-    console.warn('external symbol was destoryed');
+    //console.warn(env.root.uid + ' was destroyed')
+    //console.warn('external symbol was destoryed');
   }  
 
   core[name].data = data; //get the data
