@@ -76,7 +76,7 @@ interpretate.anonymous = async (d, org) => {
   }
 
   core[name] = async (args, env) => {
-    console.log('IE: calling our symbol...');
+    //console.log('IE: calling our symbol...');
     //evaluate in the context
     const data = await interpretate(core[name].data, env);
 
