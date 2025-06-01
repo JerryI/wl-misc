@@ -88,9 +88,6 @@ interpretate.anonymous = async (d, org) => {
 
   core[name].update = async (args, env) => {
     //evaluate in the context
-    if (!env.root.parent) { //skip if nothing is binded to it
-      return
-    };
 
     //cache good for numerics
     if (env.useCache) {
