@@ -48,7 +48,7 @@ asyncTransform[If[cond_, a_, b_]] := With[{condition = asyncTransform[cond]},
     Module[{cp = Promise[]},
       Then[Extract[cp, 1], Function[result,
         EventFire[cp, Resolve, asyncTransform[If[result, a, b]]];
-      ], Function[Null,
+      ], Function[null0,
         EventFire[cp, Reject, $Failed];
       ]];
 
@@ -62,7 +62,7 @@ asyncTransform[If[cond_, a_, b_]] := With[{condition = asyncTransform[cond]},
           
             Then[Extract[ares, 1], Function[result,
               EventFire[cap, Resolve, result];
-            ], Function[Null,
+            ], Function[null0,
               EventFire[cap, Reject, $Failed];
             ]];
             
@@ -79,7 +79,7 @@ asyncTransform[If[cond_, a_, b_]] := With[{condition = asyncTransform[cond]},
           
             Then[Extract[bres, 1], Function[result,
               EventFire[cbp, Resolve, result];
-            ], Function[Null,
+            ], Function[null0,
               EventFire[cbp, Reject, $Failed];
             ]];
             
@@ -98,9 +98,9 @@ asyncTransform[Set[a_, b_]] := With[{res = asyncTransform[b]},
     Module[{p5 = Promise[]},
       Then[Extract[res, 1], Function[resolved,
         EventFire[p5, Resolve, Set[a, resolved] ];
-      ], Function[Null,
+      ], Function[null0,
         EventFire[p5, Reject, $Failed];
-      ]];
+      ] ];
       
       asyncReturn[p5]
     ]
@@ -112,26 +112,26 @@ asyncTransform[Set[a_, b_]] := With[{res = asyncTransform[b]},
 asyncTransform[CompoundExpression[a_, b__]] := With[{first = asyncTransform[a]},
   If[MatchQ[first, _asyncReturn],
     Module[{p = Promise[]},
-      Then[Extract[first, 1], Function[Null,
-        With[{rest = asyncTransform[CompoundExpression[b]]},
+      Then[Extract[first, 1], Function[null0,
+        With[{rest = asyncTransform[CompoundExpression[b] ]},
           If[MatchQ[rest, _asyncReturn],
             Then[Extract[rest, 1], Function[result,
               EventFire[p, Resolve, result];
-            ], Function[Null,
+            ], Function[null1,
               EventFire[p, Reject, $Failed];
-            ]]
+            ] ]
           ,
             EventFire[p, Resolve, rest];
           ];
         ];
-      ], Function[Null,
+      ], Function[null2,
             EventFire[p, Reject, $Failed];
-      ]];
+      ] ];
 
       asyncReturn[p]
     ]
   ,
-    asyncTransform[CompoundExpression[b]]
+    asyncTransform[CompoundExpression[b] ]
   ]
 ]
 
@@ -141,9 +141,9 @@ AsyncFunction[vars_, body_] := Function[vars,
       Module[{mainPromise = Promise[]},
         Then[Extract[return, 1], Function[result,
           EventFire[mainPromise, Resolve, result];
-        ], Function[Null,
+        ], Function[null0,
           EventFire[mainPromise, Reject, $Failed];
-        ]];
+        ] ];
         
         mainPromise
       ]
