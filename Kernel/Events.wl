@@ -39,6 +39,7 @@ EventPacket::usage = "just handy wrapper"
 Begin["`Private`"]; 
 
 EventObject[] := EventObject[<|"Id" -> CreateUUID[]|>]
+EventObject[uid_String] := EventObject[<|"Id" -> uid|>]
 
 (* old alias *)
 EventBind[any_, handler_Function] := EventHandler[any, handler]
