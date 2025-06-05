@@ -25,7 +25,7 @@ interpretate.anonymous = async (d, org) => {
   if (d instanceof Array) {
     //console.error('stack call: ');
     //console.error(jsonStringifyRecursive(org.global.stack));
-    throw('unknown WL expression. Error at '+d[0]);
+    throw(d[0] + 'is not defined on frontend'+);
   } else {
     name = d;   //symbol
   }
@@ -65,7 +65,7 @@ interpretate.anonymous = async (d, org) => {
     console.log(jsonStringifyRecursive(data));
     //console.error('stack call: ');
     //console.error(jsonStringifyRecursive(org.global.stack));
-    throw('received symbol '+data+' is not defined in any contextes and packing'); 
+    throw('symbol '+data+' is not defined in any contextes and packing on frontend'); 
   }
 
   //if it is OK
