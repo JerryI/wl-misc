@@ -25,7 +25,7 @@ interpretate.anonymous = async (d, org) => {
   if (d instanceof Array) {
     //console.error('stack call: ');
     //console.error(jsonStringifyRecursive(org.global.stack));
-    throw(d[0] + 'is not defined on frontend'+);
+    throw(d[0] + ' is not defined on frontend');
   } else {
     name = d;   //symbol
   }
