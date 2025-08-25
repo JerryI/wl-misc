@@ -17,10 +17,12 @@ Looper;
 Begin["`Private`"]; 
 
 
-SetTimeout[expr_, timeout_] := obj = SessionSubmit[ScheduledTask[expr, {Quantity[timeout/1000, "Seconds"]}] ]
+SetTimeout[expr_, timeout_] := SessionSubmit[ScheduledTask[expr, {Quantity[timeout/1000, "Seconds"]}] ]
+SetTimeout[expr_, timeout_Quantity] := SessionSubmit[ScheduledTask[expr, {timeout}] ]
 CancelTimeout[t_TaskObject] := TaskRemove[t]
 
-SetInterval[expr_, timeout_] := obj = SessionSubmit[ScheduledTask[expr, Quantity[timeout/1000, "Seconds"]]]
+SetInterval[expr_, timeout_] := SessionSubmit[ScheduledTask[expr, Quantity[timeout/1000, "Seconds"] ] ]
+SetInterval[expr_, timeout_Quantity] := SessionSubmit[ScheduledTask[expr, timeout ] ]
 CancelInterval[t_TaskObject] := TaskRemove[t]
 
 SetAttributes[SetTimeout, HoldFirst]
